@@ -7,9 +7,10 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.6",
-    "hono": "^4.9.10",
+    "hono": "^4.7.4",
     "uuid": "^13.0.0",
     "zod": "^3.24.2"
   },

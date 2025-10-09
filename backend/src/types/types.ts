@@ -1,15 +1,14 @@
-import z from "zod";
+import { z } from 'zod';
 
-export const signUpSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
-    role: z.enum(['admin', 'hr', 'manager', 'employee'], {
-        errorMap: () => ({ message: "Role must be one of admin, hr, manager, employee" })
-    })
-})
+export const registerSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+    firstName: z.string().min(2, "First name is required"),
+    lastName: z.string().min(2, "Last name is required"),
+    roleId: z.number().int().positive("Role ID must be a positive integer"),
+});
 
-export const signInSchema = z.object({
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
-})
+export const loginSchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
+});
