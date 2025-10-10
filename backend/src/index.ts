@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { Env } from './types/env'
 import { authRouter } from './routes/auth'
 import { getDB } from './db/client'
+import { createAuth } from './utils/auth'
 
 interface CustomContext {
   db: ReturnType<typeof drizzle>
@@ -13,17 +14,16 @@ const app = new Hono<{
   Variables: CustomContext
 }>()
 
-app.use('*', async (c, next) => {
-  const database = getDB(c.env);
-  if (!database) {
-    return c.json({ message: 'Database connection error' }, 500);
-  }
-  console.log('Database connected');
-  c.set('db', database);
+app.use("*", async (c, next) => {
+  c.set("db", getDB(c.env));
   await next();
-})
+});
 
-const api = app.basePath('/api');
+app.on(["POST", "GET"], "/api/auth/*", (c) => {
+  const auth = createAuth(c.env);
+  console.log("BetterAuth routes:");
+  return auth.handler(c.req.raw);
+});
 
 app.get('/', async (c) => {
   const db = c.get('db') as ReturnType<typeof drizzle>;
@@ -33,5 +33,4 @@ app.get('/', async (c) => {
   return c.json({ message: 'Hello, Hono with D1 and Drizzle ORM!' })
 })
 
-api.route('/auth', authRouter);
 export default app

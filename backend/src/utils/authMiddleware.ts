@@ -1,7 +1,7 @@
 import { Context, Next } from "hono";
 import { verify } from "hono/jwt";
 
-export const authMiddleware = (roles: string[] = []) => {
+export const authMiddleware = () => {
     return async (c: Context, next: Next) => {
         const authHeader = c.req.header('Authorization');
         if (!authHeader) {
@@ -21,14 +21,7 @@ export const authMiddleware = (roles: string[] = []) => {
                 c.status(401);
                 return c.json({ message: "Unauthorized" });
             }
-
-            if (roles.length > 0 && !roles.includes(user.role as string)) {
-                c.status(403);
-                return c.json({ message: "Forbidden" });
-            }
-            c.set('user', user);
             c.set('userId', String(user.id));
-            c.set('userRole', String(user.role));
             await next();
         } catch (error) {
             c.status(401);
