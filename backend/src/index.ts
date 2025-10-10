@@ -1,7 +1,6 @@
 import { drizzle } from 'drizzle-orm/d1'
 import { Hono } from 'hono'
 import { Env } from './types/env'
-import { authRouter } from './routes/auth'
 import { getDB } from './db/client'
 import { createAuth } from './utils/auth'
 
