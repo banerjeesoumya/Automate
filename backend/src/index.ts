@@ -3,9 +3,13 @@ import { Hono } from 'hono'
 import { Env } from './types/env'
 import { getDB } from './db/client'
 import { createAuth } from './utils/auth'
+import { authMiddleware } from './utils/authMiddleware'
+import { user } from './db/schema'
+import { eq } from 'drizzle-orm'
 
 interface CustomContext {
-  db: ReturnType<typeof drizzle>
+  db: ReturnType<typeof drizzle>,
+  userId?: string,
 }
 
 const app = new Hono<{
@@ -32,4 +36,27 @@ app.get('/', async (c) => {
   return c.json({ message: 'Hello, Hono with D1 and Drizzle ORM!' })
 })
 
+app.get('/api/profile', authMiddleware(), async (c) => {
+  const userId = c.get('userId');
+  if (!userId) {
+    return c.json({ message: 'User not logged in' }, 401);
+  }
+  console.log('Authenticated user ID:', userId);
+  const db = c.get('db') as ReturnType<typeof drizzle>;
+  const userDetails = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+  if (userDetails.length === 0) {
+    return c.json({ message: 'User not found' }, 404);
+  }
+  return c.json({ user: userDetails[0] });
+})
+
+app.get('/api/test', async (c) => {
+  const id = c.env.CHAT_ROOM.idFromName("my-chat-room");
+  const stub = c.env.CHAT_ROOM.get(id);
+  // @ts-ignore
+  const count = await stub.increment();
+  return c.json({ count })
+})
+
 export default app
+export { ChatRoom } from './durable/ChatRoom'
