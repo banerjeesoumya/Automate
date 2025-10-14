@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { v4 as uuid } from "uuid";
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -74,3 +75,18 @@ export const verification = sqliteTable("verification", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
+
+export const conversation = sqliteTable("conversations", {
+  id: text("id").primaryKey().$defaultFn(() => uuid()),
+  conversation_id: text("conversation_id").unique(),
+  title: text("title"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+  ownerId: text("owner_id").references(() => user.id, { onDelete: "cascade" }),
+  last_message: text("last_message"),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+})

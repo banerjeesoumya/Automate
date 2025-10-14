@@ -6,6 +6,7 @@ import { createAuth } from './utils/auth'
 import { authMiddleware } from './utils/authMiddleware'
 import { user } from './db/schema'
 import { eq } from 'drizzle-orm'
+import { conversationRouter } from './routes/conversation'
 
 interface CustomContext {
   db: ReturnType<typeof drizzle>,
@@ -48,6 +49,28 @@ app.get('/api/profile', authMiddleware(), async (c) => {
     return c.json({ message: 'User not found' }, 404);
   }
   return c.json({ user: userDetails[0] });
+})
+app.route('/api', conversationRouter);
+app.post('/api/:id/message', authMiddleware(), async (c) => {
+  const id = c.req.param('id');
+  const userId = c.get('userId');
+  if (!userId) {
+    return c.json({ message: 'User not logged in' }, 401);
+  }
+  const body = await c.req.json<{ message: string; clientRequestId?: string }>()
+  const doId = c.env.CHAT_ROOM.idFromName(id);
+  const stub = c.env.CHAT_ROOM.get(doId);
+  const resp = await stub.fetch(new URL('/message', 'http://do').toString(), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      userId,
+      conversationId: id,
+      text: body.message,
+      clientRequestId: body.clientRequestId,
+    }),
+  });
+  return new Response(resp.body, resp);
 })
 
 app.get('/api/test', async (c) => {
