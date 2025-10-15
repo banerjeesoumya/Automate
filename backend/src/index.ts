@@ -3,9 +3,6 @@ import { Hono } from 'hono'
 import { Env } from './types/env'
 import { getDB } from './db/client'
 import { createAuth } from './utils/auth'
-import { authMiddleware } from './utils/authMiddleware'
-import { user } from './db/schema'
-import { eq } from 'drizzle-orm'
 import { conversationRouter } from './routes/conversation'
 
 interface CustomContext {
@@ -29,7 +26,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
 });
 
-app.get('/', async (c) => {
+app.get('/health', async (c) => {
   const db = c.get('db') as ReturnType<typeof drizzle>;
   if (!db) {
     return c.json({ message: 'Database connection error' }, 500);
@@ -37,49 +34,8 @@ app.get('/', async (c) => {
   return c.json({ message: 'Hello, Hono with D1 and Drizzle ORM!' })
 })
 
-app.get('/api/profile', authMiddleware(), async (c) => {
-  const userId = c.get('userId');
-  if (!userId) {
-    return c.json({ message: 'User not logged in' }, 401);
-  }
-  console.log('Authenticated user ID:', userId);
-  const db = c.get('db') as ReturnType<typeof drizzle>;
-  const userDetails = await db.select().from(user).where(eq(user.id, userId)).limit(1);
-  if (userDetails.length === 0) {
-    return c.json({ message: 'User not found' }, 404);
-  }
-  return c.json({ user: userDetails[0] });
-})
 app.route('/api', conversationRouter);
-app.post('/api/:id/message', authMiddleware(), async (c) => {
-  const id = c.req.param('id');
-  const userId = c.get('userId');
-  if (!userId) {
-    return c.json({ message: 'User not logged in' }, 401);
-  }
-  const body = await c.req.json<{ message: string; clientRequestId?: string }>()
-  const doId = c.env.CHAT_ROOM.idFromName(id);
-  const stub = c.env.CHAT_ROOM.get(doId);
-  const resp = await stub.fetch(new URL('/message', 'http://do').toString(), {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      userId,
-      conversationId: id,
-      text: body.message,
-      clientRequestId: body.clientRequestId,
-    }),
-  });
-  return new Response(resp.body, resp);
-})
 
-app.get('/api/test', async (c) => {
-  const id = c.env.CHAT_ROOM.idFromName("my-chat-room");
-  const stub = c.env.CHAT_ROOM.get(id);
-  // @ts-ignore
-  const count = await stub.increment();
-  return c.json({ count })
-})
 
 export default app
 export { ChatRoom } from './durable/ChatRoom'

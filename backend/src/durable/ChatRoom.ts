@@ -1,9 +1,9 @@
-import { DurableObject } from 'cloudflare:workers'
 import { Env } from '../types/env'
 import { v4 as uuid} from 'uuid';
 import { DurableObjectState } from '@cloudflare/workers-types';
 import { getDB } from '../db/client';
 import { conversation } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
 type Role = 'user' | 'assistant' | 'system';
 
@@ -131,7 +131,7 @@ export class ChatRoom {
 
   public async handleMessage(request: Request) {
     type Payload = {
-      userId: string;
+      id?: string;
       conversationId?: string;
       text: string;
       clientRequestId?: string;
@@ -139,12 +139,14 @@ export class ChatRoom {
     }
 
     const body = await request.json<Payload>();
-    if (!body?.userId || !body?.conversationId || !body?.text) {
+    // Takes the id as part of the request body, which comes from the previous post request '/conversations
+    if (!body?.id || !body?.text || !body?.conversationId) {
       return new Response('Invalid request body', { status: 400 });
     }
+    
     const now = Date.now();
-    // TODO: Get previous messages from storage
-    let messages: Message[] = [];
+    let messages: Message[] = await this.getMessages();
+
     const userMsg: Message = {
       id: `m_${uuid()}`,
       role: 'user',
@@ -163,6 +165,7 @@ export class ChatRoom {
       max_tokens: 1024,
       temperature: 0.7
     });
+
     const assistantText = aiRes?.response ?? aiRes?.output_text ?? '';
     const assistantMsg: Message = {
       id: `m_${uuid()}`,
@@ -170,34 +173,59 @@ export class ChatRoom {
       text: assistantText,
       ts: Date.now()
     };
-    messages.push(assistantMsg);
-    await this.putMessages(messages);
+
+// TODO: For stronger consistency, considering only updating the conversation after the DB update succeeds. Later we will move to to safe retries with the DB. 
+
+    // messages.push(assistantMsg);
+    // await this.putMessages(messages);
 
     const db = getDB(this.env);
     try {
-      await db.insert(conversation)
-        .values({
-          conversation_id: body.conversationId,
-          ownerId: body.userId,
-          last_message: assistantText.slice(0, 400),
-          updatedAt: new Date(),
-        })
-        .onConflictDoUpdate({
-          target: conversation.conversation_id,
-          set: {
-            last_message: assistantText.slice(0, 400),
+      const existing = await db.query.conversation.findFirst({
+        where: eq(conversation.id, body.id)
+      })
+      if (!existing) {
+        console.error('Conversation not found:');
+        return;
+      } else {
+        console.log('Existing conversation Found:', existing);
+        let title = existing.title;
+        if (!title || title.trim() === '') {
+          const titlePrompt = `Generate a short, 4-word maximum title that summarizes the conversation based on:
+          USER: ${body.text}
+          ASSISTANT: ${assistantText}`;
+
+          const titleRes: any = await this.env.AI.run(model, {
+            prompt: titlePrompt,
+            max_tokens: 20,
+            temperature: 0.2
+          });
+
+          title = (titleRes?.response ?? titleRes?.output_text ?? 'New Chat').trim();
+        }
+        const [updateChat] = await db.update(conversation).set({
+            conversation_id: body.conversationId,
+            title: title?.slice(0, 50),
+            last_message: assistantText?.slice(0, 400),
             updatedAt: new Date(),
-          },
-        });
+          })
+          .where(eq(conversation.id, body.id))
+          .returning({ conversationID: conversation.id });
+
+        messages.push(assistantMsg);
+        await this.putMessages(messages);
+
+        console.log('Updated conversation:', updateChat);
+
+        return Response.json({
+          reply: assistantText,
+          conversationId: updateChat.conversationID,
+          id: body.id,
+        })
+      }
     } catch (error) {
       console.error('Error inserting/updating conversation:', error);
+      return new Response('Internal Server Error', { status: 500 });
     }
-
-
-    return Response.json({
-      reply: assistantText,
-      conversationId: body.conversationId,
-      messageId: assistantMsg.id
-    });
   }
 }
