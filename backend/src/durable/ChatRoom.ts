@@ -1,9 +1,9 @@
 import { Env } from '../types/env'
 import { v4 as uuid} from 'uuid';
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { getDB } from '../db/client';
-import { conversation } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { PrismaClient } from '../generated/prisma/edge';
+import { withAccelerate } from '@prisma/extension-accelerate';
+
 
 type Role = 'user' | 'assistant' | 'system';
 
@@ -179,17 +179,23 @@ export class ChatRoom {
     // messages.push(assistantMsg);
     // await this.putMessages(messages);
 
-    const db = getDB(this.env);
+    const prisma = new PrismaClient({
+      datasourceUrl: this.env.CONNECTION_POOL_URL
+    }).$extends(withAccelerate())
+
     try {
-      const existing = await db.query.conversation.findFirst({
-        where: eq(conversation.id, body.id)
+      const existingConversation = await prisma.conversation.findFirst({
+        where: {
+          id: body.id
+        }
       })
-      if (!existing) {
+      if (!existingConversation) {
         console.error('Conversation not found:');
-        return;
-      } else {
-        console.log('Existing conversation Found:', existing);
-        let title = existing.title;
+        return
+        // return new Response('Conversation not found', { status: 404 });
+      }
+      console.log('Existing conversation Found:', existingConversation);
+      let title = existingConversation.title;
         if (!title || title.trim() === '') {
           const titlePrompt = `Generate a short, 4-word maximum title that summarizes the conversation based on:
           USER: ${body.text}
@@ -203,14 +209,17 @@ export class ChatRoom {
 
           title = (titleRes?.response ?? titleRes?.output_text ?? 'New Chat').trim();
         }
-        const [updateChat] = await db.update(conversation).set({
-            conversation_id: body.conversationId,
+        const updateChat = await prisma.conversation.update({
+          where: {
+            id: body.id
+          },
+          data: {
+            conversationId: body.conversationId,
             title: title?.slice(0, 50),
-            last_message: assistantText?.slice(0, 400),
+            lastMessage: assistantText?.slice(0, 400),
             updatedAt: new Date(),
-          })
-          .where(eq(conversation.id, body.id))
-          .returning({ conversationID: conversation.id });
+          }
+        })
 
         messages.push(assistantMsg);
         await this.putMessages(messages);
@@ -219,13 +228,61 @@ export class ChatRoom {
 
         return Response.json({
           reply: assistantText,
-          conversationId: updateChat.conversationID,
+          conversationId: updateChat.id,
           id: body.id,
         })
-      }
     } catch (error) {
       console.error('Error inserting/updating conversation:', error);
       return new Response('Internal Server Error', { status: 500 });
     }
+
+    // const db = getDB(this.env);
+    // try {
+    //   const existing = await db.query.conversation.findFirst({
+    //     where: eq(conversation.id, body.id)
+    //   })
+    //   if (!existing) {
+    //     console.error('Conversation not found:');
+    //     return;
+    //   } else {
+    //     console.log('Existing conversation Found:', existing);
+    //     let title = existing.title;
+    //     if (!title || title.trim() === '') {
+    //       const titlePrompt = `Generate a short, 4-word maximum title that summarizes the conversation based on:
+    //       USER: ${body.text}
+    //       ASSISTANT: ${assistantText}`;
+
+    //       const titleRes: any = await this.env.AI.run(model, {
+    //         prompt: titlePrompt,
+    //         max_tokens: 20,
+    //         temperature: 0.2
+    //       });
+
+    //       title = (titleRes?.response ?? titleRes?.output_text ?? 'New Chat').trim();
+    //     }
+    //     const [updateChat] = await db.update(conversation).set({
+    //         conversation_id: body.conversationId,
+    //         title: title?.slice(0, 50),
+    //         last_message: assistantText?.slice(0, 400),
+    //         updatedAt: new Date(),
+    //       })
+    //       .where(eq(conversation.id, body.id))
+    //       .returning({ conversationID: conversation.id });
+
+    //     messages.push(assistantMsg);
+    //     await this.putMessages(messages);
+
+    //     console.log('Updated conversation:', updateChat);
+
+    //     return Response.json({
+    //       reply: assistantText,
+    //       conversationId: updateChat.conversationID,
+    //       id: body.id,
+    //     })
+    //   }
+    // } catch (error) {
+    //   console.error('Error inserting/updating conversation:', error);
+    //   return new Response('Internal Server Error', { status: 500 });
+    // }
   }
 }

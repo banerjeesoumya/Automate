@@ -1,9 +1,8 @@
 import { Hono } from "hono";
 import { authMiddleware } from "../utils/authMiddleware";
 import { Env } from "../types/env";
-import { getDB } from "../db/client";
-import { conversation } from "../db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { PrismaClient } from "../generated/prisma/edge";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
 export const conversationRouter = new Hono<{ 
   Bindings: Env,
@@ -11,20 +10,29 @@ export const conversationRouter = new Hono<{
 }>();
 
 conversationRouter.get("/conversations", authMiddleware(), async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.CONNECTION_POOL_URL
+  }).$extends(withAccelerate());
   const userId = c.get("userId");
   if (!userId) {
     return c.json({
       message: "User not logged in"
     }, 401);
   }
-  const db = getDB(c.env);
   try {
-    const conversations = await db.select().from(conversation).where(eq(conversation.ownerId, userId)).orderBy(desc(conversation.updatedAt));
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        userId: userId
+      },
+      orderBy: {
+        updatedAt: "desc"
+      }
+    });
     return c.json({
       ok: true,
       conversations: conversations.map(conv => ({
         id: conv.id,
-        conversationId: conv.conversation_id,
+        conversationId: conv.conversationId,
         title: conv.title
       }))
     });
@@ -38,6 +46,9 @@ conversationRouter.get("/conversations", authMiddleware(), async (c) => {
 })
 
 conversationRouter.get("/conversations/:id", authMiddleware(), async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.CONNECTION_POOL_URL
+  }).$extends(withAccelerate());
   const userId = c.get("userId");
   if (!userId) {
     return c.json({
@@ -48,14 +59,13 @@ conversationRouter.get("/conversations/:id", authMiddleware(), async (c) => {
   if (!conversationId) {
     return c.json({ error: "Conversation ID is required" }, 400);
   }
-  const db = getDB(c.env);
   try {
-    const conv = await db.query.conversation.findFirst({
-      where: and(
-        eq(conversation.conversation_id, conversationId),
-        eq(conversation.ownerId, userId)
-      ),
-    });
+    const conv = await prisma.conversation.findFirst({
+      where: {
+        conversationId: conversationId,
+        userId: userId
+      }
+    })
 
     if (!conv) {
       return c.json({ error: "Conversation not found" }, 404);
@@ -65,9 +75,9 @@ conversationRouter.get("/conversations/:id", authMiddleware(), async (c) => {
       ok: true,
       conversation: {
         id: conv.id,
-        conversationId: conv.conversation_id,
+        conversationId: conv.conversationId,
         title: conv.title ?? "Untitled Chat",
-        lastMessage: conv.last_message ?? "",
+        lastMessage: conv.lastMessage ?? "",
         updatedAt: conv.updatedAt,
       },
     });
@@ -81,6 +91,9 @@ conversationRouter.get("/conversations/:id", authMiddleware(), async (c) => {
 })
 
 conversationRouter.get("/conversations/:id/history", authMiddleware(), async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.CONNECTION_POOL_URL
+  }).$extends(withAccelerate());
   const userId = c.get("userId");
   if (!userId) {
     return c.json({
@@ -91,14 +104,13 @@ conversationRouter.get("/conversations/:id/history", authMiddleware(), async (c)
   if (!conversationId) {
     return c.json({ error: "Conversation ID is required" }, 400);
   }
-  const db = getDB(c.env);
   try {
-    const conv = await db.query.conversation.findFirst({
-      where: and(
-        eq(conversation.conversation_id, conversationId),
-        eq(conversation.ownerId, userId)
-      ),
-    });
+    const conv = await prisma.conversation.findFirst({
+      where: {
+        conversationId: conversationId,
+        userId: userId
+      }
+    })
     if (!conv) {
       return c.json({ error: "Conversation not found" }, 404);
     } else {
@@ -117,7 +129,11 @@ conversationRouter.get("/conversations/:id/history", authMiddleware(), async (c)
 })
 
 conversationRouter.post("/conversations/:id/actions", authMiddleware(), async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.CONNECTION_POOL_URL
+  }).$extends(withAccelerate());
   const userId = c.get("userId");
+  console.log('User ID:', userId);
   if (!userId) {
     return c.json({
       message: "User not logged in"
@@ -137,13 +153,12 @@ conversationRouter.post("/conversations/:id/actions", authMiddleware(), async (c
     return c.json({ error: "Missing value for rename action" }, 400);
   }
   
-  const db = getDB(c.env);
   try {
-    const conv = await db.query.conversation.findFirst({
-      where: and(
-        eq(conversation.conversation_id, conversationId),
-        eq(conversation.ownerId, userId)
-      ),
+    const conv = await prisma.conversation.findFirst({
+      where: {
+        conversationId: conversationId,
+        userId: userId
+      }
     });
     if (!conv) {
       return c.json({ error: "Conversation not found" }, 404);
@@ -151,10 +166,21 @@ conversationRouter.post("/conversations/:id/actions", authMiddleware(), async (c
 
     switch (body.action) {
       case "rename":
-        await db.update(conversation).set({ title: body.value }).where(eq(conversation.id, conv.id));
+        await prisma.conversation.update({
+          where: {
+            id: conv.id
+          },
+          data: {
+            title: body.value
+          }
+        });
         return c.json({ ok: true, message: "Conversation renamed" });
       case "delete":
-        await db.delete(conversation).where(eq(conversation.id, conv.id));
+        await prisma.conversation.delete({
+          where: {
+            id: conv.id
+          }
+        });
         return c.json({ ok: true, message: "Conversation deleted" });
       default:
         return c.json({ error: "Unknown action" }, 400);
@@ -169,17 +195,21 @@ conversationRouter.post("/conversations/:id/actions", authMiddleware(), async (c
 })
 
 conversationRouter.post("/conversations", authMiddleware(), async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.CONNECTION_POOL_URL
+  }).$extends(withAccelerate());
   const userId = c.get("userId");
   if (!userId) {
     return c.json({
       message: "User not logged in"
     }, 401);
   }
-  const db = getDB(c.env);
   try {
-      const [createChat] = await db.insert(conversation).values({
-      ownerId: userId,
-    }).returning({ id: conversation.id });
+    const createChat = await prisma.conversation.create({
+      data: {
+        userId: userId,
+      }
+    })
     return c.json({
       ok: true,
       message: "Conversation created",

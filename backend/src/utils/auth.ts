@@ -1,14 +1,17 @@
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { getDB } from "../db/client";
+import { prismaAdapter } from "better-auth/adapters/prisma";
 import type { Env } from "../types/env";
+import { PrismaClient } from "../generated/prisma/edge";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
 export function createAuth(env: Env) {
-  const db = getDB(env);
+  const db = new PrismaClient({
+    datasourceUrl: env.CONNECTION_POOL_URL
+  }).$extends(withAccelerate());
 
   return betterAuth({
-    database: drizzleAdapter(db, {
-      provider: "sqlite",
+    database: prismaAdapter(db, {
+      provider: "postgresql",
     }),
     emailAndPassword: {
       enabled: true,
