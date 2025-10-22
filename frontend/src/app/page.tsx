@@ -1,6 +1,20 @@
-import Image from "next/image";
+"use client";
 
+import Image from "next/image";
+// import { createAuthClient } from "better-auth/react"
+// const { useSession } = createAuthClient() 
+import { LogoutButton } from "./logout";
+import { redirect } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+// import { requireAuth } from "@/lib/auth-utils";
 export default function Home() {
+  // const { data: session } = useSession()
+  // if (!session) {
+  //   redirect("/signin")
+  // }
+  //  requireAuth()
+  useAuthRedirect({ requireAuth: true });
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -49,6 +63,18 @@ export default function Home() {
           >
             Read our docs
           </a>
+          {/* <div>
+            <p>Welcome {session.user.name}</p>
+            <p>Email: {session.user.email}</p>
+            <p>Image: {session.user.image}</p>
+            <p>ID: {session.user.id}</p>
+            <p>Created At: {session.user.createdAt.toISOString()}</p>
+            <p>Updated At: {session.user.updatedAt.toISOString()}</p>
+            <p>Email Verified: {session.user.emailVerified}</p>
+          </div> */}
+          <div>
+            <LogoutButton />
+          </div>
         </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
