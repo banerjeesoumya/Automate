@@ -28,6 +28,6 @@ export function createAuth(env: Env) {
       },
     },
     baseURL: "http://127.0.0.1:8787",
-    trustedOrigins: ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:3000"],
+    trustedOrigins: ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:3000", "https://automate-xi-jet.vercel.app"],
   });
 }

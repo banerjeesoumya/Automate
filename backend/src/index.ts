@@ -19,8 +19,7 @@ const app = new Hono<{
 app.use(
   '*',
   cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], // your frontend
-    allowHeaders: ['Content-Type', 'Authorization'],
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://automate-xi-jet.vercel.app'],
     allowMethods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   })
