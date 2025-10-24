@@ -5,6 +5,7 @@ import { ThemeProvider } from "../components/theme-provider";
 import { Toaster } from "sonner";
 import { QueryProvider } from "@/providers/query-provider";
 import { ToasterClient } from "@/components/toaster-client";
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +34,10 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <QueryProvider>
-            {children}
-            <ToasterClient />
+            <NuqsAdapter>
+              {children}
+              <ToasterClient />
+            </NuqsAdapter>
           </QueryProvider>
         </ThemeProvider>
       </body>

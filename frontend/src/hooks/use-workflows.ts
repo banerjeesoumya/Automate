@@ -2,6 +2,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { workflowApi } from "@/lib/api"
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useWorkflowsParams } from "./use-workflows-params";
 
 export const useCreateWorkflow = () => {
   const router = useRouter();
@@ -26,10 +27,13 @@ export const useCreateWorkflow = () => {
     },
   });
 };
+
 export const useSuspenseWorkflows = () => {
-    return useSuspenseQuery({
-    queryKey: ["workflows"],
-    queryFn: workflowApi.getManyWorkflows,
-  })
-}
+  const [params] = useWorkflowsParams();
+
+  return useSuspenseQuery({
+    queryKey: ["workflows", params],
+    queryFn: () => workflowApi.getManyWorkflows(params),
+  });
+};
   
