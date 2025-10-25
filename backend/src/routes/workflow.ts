@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
 import { Env } from '../types/env';
 import { generateSlug } from 'random-word-slugs';
-import { createId } from '@paralleldrive/cuid2';
 import { authMiddleware } from '../utils/authMiddleware';
 import { NodeType, PrismaClient } from '../generated/prisma/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
@@ -145,8 +144,6 @@ workflowRouter.get('/workflows/:id', authMiddleware(), async (c) => {
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate());
     const userId = c.get('userId');
-    // const body = await c.req.json();
-    // const parseResult = getOneWorkflowSchema.safeParse(body);
     const parseResult = getOneWorkflowSchema.safeParse({
         id: c.req.param('id')
     });
@@ -178,7 +175,7 @@ workflowRouter.get('/workflows/:id', authMiddleware(), async (c) => {
     }
 })
 
-workflowRouter.patch('/workfllows/:id', authMiddleware(), async (c) => {
+workflowRouter.patch('/workflows/:id', authMiddleware(), async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate());
@@ -213,3 +210,46 @@ workflowRouter.patch('/workfllows/:id', authMiddleware(), async (c) => {
         }, 500);
     }
 })  
+
+const deleteWorkflowSchema = z.object({
+    id: z.string()
+});
+
+workflowRouter.delete('/workflows/:id', authMiddleware(), async (c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.CONNECTION_POOL_URL
+    }).$extends(withAccelerate());
+    const userId = c.get('userId');
+    if (!userId) {
+        return c.json({ message: 'User not logged in' }, 401);
+    }
+    const workflowId = c.req.param('id');
+    const parseResult = deleteWorkflowSchema.safeParse({
+        id: workflowId
+    });
+    if (!parseResult.success) {
+        return c.json({ message: 'Invalid request', errors: parseResult.error.errors }, 400);
+    }
+    if (!workflowId) {
+        return c.json({ error: 'Workflow ID is required' }, 400);
+    }
+    try {
+      const deleteWorkflow = await prisma.workflow.delete({
+        where: {
+          id: workflowId,
+          userId: userId,
+        }
+      })
+      return c.json({
+        ok: true,
+        workflow: deleteWorkflow,
+        message: 'Workflow deleted successfully',
+      })
+    } catch (error) {
+      console.error('Error deleting workflow:', error);
+      return c.json({
+        ok: false,
+        message: 'Error deleting workflow',
+      }, 500);
+    }
+})
