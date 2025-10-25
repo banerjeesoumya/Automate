@@ -1,9 +1,12 @@
-import { EmptyView, EntityContainer, EntityHeader, EntityList, EntityPagination, EntitySearch, LoadingView } from "@/components/entity-components";
+import { EmptyView, EntityContainer, EntityHeader, EntityItem, EntityList, EntityPagination, EntitySearch, LoadingView } from "@/components/entity-components";
 import { useEntitySearch } from "@/hooks/use-entity-search";
-import { useCreateWorkflow, useSuspenseWorkflows } from "@/hooks/use-workflows"
+import { useCreateWorkflow, useDeleteWorkflow, useSuspenseWorkflows } from "@/hooks/use-workflows"
 import { useWorkflowsParams } from "@/hooks/use-workflows-params";
+import { formatDistanceToNow } from "date-fns";
+import { WorkflowIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
 
 export const WorkflowsSearch = () => {
     const [params, setParams] = useWorkflowsParams();
@@ -32,7 +35,7 @@ export const WorkFlowsList = () => {
         <>
             <EntityList
                 items={workflows.data.items}
-                renderItem={(workflow) => <p>{workflow.name}</p>}
+                renderItem={(workflow) => <WorkflowItem workflow={workflow} />}
                 getKey={(workflow) => workflow.id}
                 emptyView={<WorkflowsEmpty />}
             />
@@ -123,6 +126,43 @@ export const WorkflowsEmpty = () => {
                 onNew={handleCreate}
             />
         </>
+    )
+}
+
+export interface Workflow {
+  id: string;
+  name: string;
+  userId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const WorkflowItem = ({ workflow }: { workflow: Workflow }) => {
+    
+    const removeWorkflow = useDeleteWorkflow();
+
+    const handleRemove = () => {
+        removeWorkflow.mutate({ id: workflow.id });
+    }
+
+    return (
+        <EntityItem
+           href={`/workflows/${workflow.id}`}
+           title={workflow.name}
+           subtitle={
+            <>
+                Updated {formatDistanceToNow((workflow.updatedAt), { addSuffix: true })}{" "}
+                &bull; Created {" "} {formatDistanceToNow((workflow.createdAt), { addSuffix: true })}
+            </>
+           }
+           image={
+            <div className="size-8 flex items-center justify-center">
+                <WorkflowIcon className="size-5 text-muted-foreground" />
+            </div>
+           }
+           onRemove={handleRemove}
+           isRemoving={removeWorkflow.isPending}
+       />
     )
 }
 

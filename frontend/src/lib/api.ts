@@ -10,6 +10,7 @@ interface Workflow {
 }
 
 interface WorkflowResponse {
+  name: string;
   ok: boolean;
   workflow: Workflow;
   message: string;
@@ -53,4 +54,14 @@ export const workflowApi = {
     });
     return response.data;
   },
+
+  deleteWorkflow: async (params: { id: string }) => {
+    const response = await api.delete<WorkflowResponse>(`/workflows/${params.id}`);
+    return response.data;
+  },
+
+  updateWorkflowName: async (params: { id: string }, name: string) => {
+    const response = await api.patch<WorkflowResponse>(`/workflows/${params.id}`, { name });
+    return response.data;
+  }
 };

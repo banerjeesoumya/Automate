@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
+import { toast } from "sonner"
 // import { authClient } from "../authClient"
 
 export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } = {}) {
@@ -22,6 +23,7 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
     // 🔒 If the page requires authentication
     if (requireAuth && !session?.user) {
       router.replace("/signin")
+      toast.info("You must be signed in to access that page.")
       return
     }
 
@@ -29,7 +31,8 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
     if (!requireAuth && !requireNoAuth && !isPending) {
       if (session?.user && (pathname === "/signin" || pathname === "/signup")) {
         router.replace("/")
-      } else if (!session?.user && (pathname === "/" || pathname === "/dashboard")) {
+      } else if (!session?.user && (pathname === "/" || pathname === "/workflows" || pathname.startsWith("/workflows/"))) {
+        toast.info("You must be signed in to access that page.")
         router.replace("/signin")
       }
     }
