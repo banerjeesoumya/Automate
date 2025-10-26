@@ -90,7 +90,7 @@ export const useSuspenseWorkflow =  (id: string) => {
   })
 }
 
-export const useUpdateWorkflow = () => {
+export const useUpdateWorkflowName = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -133,6 +133,55 @@ export const useUpdateWorkflow = () => {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["workflows"] });
+    },
+  });
+};
+
+export const useUpdateWorkflowNodesAndEdges = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["updateWorkflowNodesAndEdges"],
+
+    // actual mutation function
+    mutationFn: async ({ id, nodes, edges }: { id: string; nodes: any[]; edges: any[] }) => {
+      return workflowApi.updateWorkflowNodesAndEdges({ id }, nodes, edges);
+    },
+
+    // optional optimistic update (to make editor feel instant)
+    onMutate: async ({ id, nodes, edges }) => {
+      await queryClient.cancelQueries({ queryKey: ["workflow", id] });
+
+      const previousData = queryClient.getQueryData(["workflow", id]);
+
+      queryClient.setQueryData(["workflow", id], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          nodes,
+          edges,
+        };
+      });
+
+      return { previousData };
+    },
+
+    // when request succeeds
+    onSuccess: (data, { id }) => {
+      toast.success("Workflow updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ["workflow", id] });
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
+    },
+
+    // on error rollback
+    onError: (error: any, { id }, context) => {
+      queryClient.setQueryData(["workflow", id], context?.previousData);
+      toast.error(`Failed to update workflow: ${error?.message ?? "Unknown error"}`);
+    },
+
+    // after success/error
+    onSettled: (_, __, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["workflow", id] });
     },
   });
 };

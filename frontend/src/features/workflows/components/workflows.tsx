@@ -133,8 +133,8 @@ export interface Workflow {
   id: string;
   name: string;
   userId?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export const WorkflowItem = ({ workflow }: { workflow: Workflow }) => {
@@ -151,8 +151,8 @@ export const WorkflowItem = ({ workflow }: { workflow: Workflow }) => {
            title={workflow.name}
            subtitle={
             <>
-                Updated {formatDistanceToNow((workflow.updatedAt), { addSuffix: true })}{" "}
-                &bull; Created {" "} {formatDistanceToNow((workflow.createdAt), { addSuffix: true })}
+                Updated {formatDistanceToNow(new Date(workflow.updatedAt ?? ""), { addSuffix: true })}{" "}
+                &bull; Created {" "} {formatDistanceToNow(new Date(workflow.createdAt ?? ""), { addSuffix: true })}
             </>
            }
            image={

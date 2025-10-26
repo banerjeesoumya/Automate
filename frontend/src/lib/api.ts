@@ -1,22 +1,50 @@
-import axios from "axios"
+import axios from "axios";
 
-const BACKEND_URL = "http://127.0.0.1:8787/api"
+const BACKEND_URL = "http://127.0.0.1:8787/api";
 
-interface Workflow {
+// === Types ===
+export interface NodeData {
   id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
+  type: string;
+  data: Record<string, any>;
+  position: { x: number; y: number };
 }
 
-interface WorkflowResponse {
+export interface EdgeData {
+  id: string;
+  source: string;
+  target: string;
+  sourceHandle?: string;
+  targetHandle?: string;
+  type?: string;
+}
+
+export interface Workflow {
+  id: string;
   name: string;
+  createdAt?: string;
+  updatedAt?: string;
+  userId?: string;
+  nodes?: NodeData[];
+  edges?: EdgeData[];
+}
+
+export interface WorkflowResponse {
   ok: boolean;
   workflow: Workflow;
   message: string;
 }
 
-interface PaginatedWorkflowResponse {
+export interface GetOneWorkflowResponse {
+  ok: boolean;
+  id: string;
+  name: string;
+  nodes: NodeData[];
+  edges: EdgeData[];
+  message: string;
+}
+
+export interface PaginatedWorkflowResponse {
   ok: boolean;
   items: Workflow[];
   page: number;
@@ -28,14 +56,14 @@ interface PaginatedWorkflowResponse {
   message: string;
 }
 
+// === Axios instance ===
 export const api = axios.create({
   baseURL: BACKEND_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
+// === API functions ===
 export const workflowApi = {
   createWorkflow: async () => {
     const response = await api.post<WorkflowResponse>("/workflows");
@@ -43,15 +71,12 @@ export const workflowApi = {
   },
 
   getOneWorkflow: async (id?: string) => {
-    const response = await api.get<WorkflowResponse>(`/workflows/${id}`);
+    const response = await api.get<GetOneWorkflowResponse>(`/workflows/${id}`);
     return response.data;
   },
 
-  // ✅ Now supports pagination + search params
   getManyWorkflows: async (params: { page: number; pageSize: number; search?: string }) => {
-    const response = await api.get<PaginatedWorkflowResponse>("/workflows/all", {
-      params,
-    });
+    const response = await api.get<PaginatedWorkflowResponse>("/workflows/all", { params });
     return response.data;
   },
 
@@ -62,6 +87,11 @@ export const workflowApi = {
 
   updateWorkflowName: async (params: { id: string }, name: string) => {
     const response = await api.patch<WorkflowResponse>(`/workflows/${params.id}`, { name });
+    return response.data;
+  },
+
+  updateWorkflowNodesAndEdges: async (params: { id: string }, nodes: NodeData[], edges: EdgeData[]) => {
+    const response = await api.put(`/workflows/${params.id}/nodes`, { nodes, edges });
     return response.data;
   }
 };

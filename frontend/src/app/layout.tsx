@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { QueryProvider } from "@/providers/query-provider";
 import { ToasterClient } from "@/components/toaster-client";
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { Provider } from "jotai";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,8 +36,10 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <QueryProvider>
             <NuqsAdapter>
-              {children}
-              <ToasterClient />
+              <Provider>
+                {children}
+                <ToasterClient />
+              </Provider>
             </NuqsAdapter>
           </QueryProvider>
         </ThemeProvider>

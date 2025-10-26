@@ -11,3 +11,9 @@ export const PAGINATION = {
     MAX_PAGE_SIZE: 100,
     MIN_PAGE_SIZE: 1,
 }
+
+export enum NodeType {
+  Initial = "Initial",
+  Manual_Trigger = "Manual_Trigger",
+  HTTP_Request = "HTTP_Request",
+}

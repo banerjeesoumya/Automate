@@ -28,14 +28,13 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
     }
 
     // Optional generic redirection logic (same as before)
-    if (!requireAuth && !requireNoAuth && !isPending) {
-      if (session?.user && (pathname === "/signin" || pathname === "/signup")) {
-        router.replace("/")
-      } else if (!session?.user && (pathname === "/" || pathname === "/workflows" || pathname.startsWith("/workflows/"))) {
-        toast.info("You must be signed in to access that page.")
-        router.replace("/signin")
-      }
-    }
+    // if (!requireAuth && !requireNoAuth && !isPending) {
+    //   if (session?.user && (pathname === "/signin" || pathname === "/signup")) {
+    //     router.replace("/")
+    //   } else if (!session?.user && (pathname === "/" || pathname === "/workflows" || pathname.startsWith("/workflows/"))) {
+    //     router.replace("/signin")
+    //   }
+    // }
   }, [session, isPending, pathname, router, requireAuth, requireNoAuth])
 
   return { session, user: session?.user, isPending }
