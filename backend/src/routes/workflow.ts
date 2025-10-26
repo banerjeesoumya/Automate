@@ -279,7 +279,7 @@ workflowRouter.delete('/workflows/:id', authMiddleware(), async (c) => {
 })
 
 const updateWorkflowSchema = z.object({
-    id: z.string(),
+    // id: z.string(),
     nodes: z.array(
         z.object({
             id: z.string(),
@@ -321,7 +321,7 @@ workflowRouter.put('/workflows/:id/nodes', authMiddleware(), async (c) => {
     }
 
     try {
-        const { id, nodes, edges } = correctUpdateBody.data;
+        const { nodes, edges } = correctUpdateBody.data;
         // Step 1: Find the workflow to ensure it exists and belongs to the user
         const existingWorkflow = await prisma.workflow.findFirst({
             where: {
