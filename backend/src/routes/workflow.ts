@@ -6,6 +6,8 @@ import { NodeType, PrismaClient } from '../generated/prisma/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import z from 'zod';
 import { PAGINATION } from '../utils/constants';
+import type { Node } from '@xyflow/react';
+import { id } from 'zod/v4/locales';
 
 export const workflowRouter = new Hono<{
     Bindings: Env,
@@ -155,15 +157,37 @@ workflowRouter.get('/workflows/:id', authMiddleware(), async (c) => {
         return c.json({ message: 'User not logged in' }, 401);
     }
     try {
-        const workflow = await prisma.workflow.findUnique({
+        const workflow = await prisma.workflow.findUniqueOrThrow({
             where: {
                 id: parseResult.data.id,
                 userId: userId
             },
+            include: {
+                nodes: true,
+                connections: true,
+            }
         })
+        const nodes: Node[] = workflow.nodes.map((node) => ({
+            id: node.id,
+            type: node.type,
+            position: node.position as { x: number; y: number },
+            data: (node.data as Record<string, unknown>) || {},
+        }))
+
+        const edges = workflow.connections.map((conn) => ({
+            id: conn.id,
+            source: conn.fromNodeId,
+            target: conn.toNodeId,
+            sourceHandle: conn.fromOutput,
+            targetHandle: conn.toInput
+        }))
+
         return c.json({
             ok: true,
-            workflow: workflow,
+            id: workflow.id,
+            name: workflow.name,
+            nodes,
+            edges,
             message: 'Workflow fetched successfully',
         })
     } catch (error) {
@@ -251,5 +275,115 @@ workflowRouter.delete('/workflows/:id', authMiddleware(), async (c) => {
         ok: false,
         message: 'Error deleting workflow',
       }, 500);
+    }
+})
+
+const updateWorkflowSchema = z.object({
+    id: z.string(),
+    nodes: z.array(
+        z.object({
+            id: z.string(),
+            type: z.string().nullish(),
+            position: z.object({
+                x: z.number(),
+                y: z.number()
+            }),
+            data: z.record(z.string(), z.any()).optional()
+        })
+    ),
+    edges: z.array(
+        z.object({
+            source: z.string(),
+            target: z.string(),
+            sourceHandle: z.string().nullish(),
+            targetHandle: z.string().nullish(),
+        })
+    )
+})
+
+workflowRouter.put('/workflows/:id/nodes', authMiddleware(), async (c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.CONNECTION_POOL_URL
+    }).$extends(withAccelerate());
+    const userId = c.get('userId');
+    if (!userId) {
+        return c.json({ message: 'User not logged in' }, 401);
+    }
+    const workflowId = c.req.param('id');
+    if (!workflowId) {
+        return c.json({ error: 'Workflow ID is required' }, 400);
+    }
+
+    const body = await c.req.json();
+    const correctUpdateBody = updateWorkflowSchema.safeParse(body);
+    if (!correctUpdateBody.success) {
+        return c.json({ error: 'Invalid request body', details: correctUpdateBody.error.errors }, 400);
+    }
+
+    try {
+        const { id, nodes, edges } = correctUpdateBody.data;
+        // Step 1: Find the workflow to ensure it exists and belongs to the user
+        const existingWorkflow = await prisma.workflow.findFirst({
+            where: {
+                id: workflowId,
+                userId: userId,
+            }
+        });
+        if (!existingWorkflow) {
+            return c.json({ error: 'Workflow not found' }, 404);
+        }
+        // Updates the nodes and the edges associated with the workflow. Keeping it inside a transaction to ensure data consistency.
+        const updatedNodes = await prisma.$transaction(async (tx) => {
+            // Step 2: Delete existing nodes and connections
+            await tx.node.deleteMany({
+                where: {
+                    workflowId: existingWorkflow.id,
+                }
+            });
+            await tx.connection.deleteMany({
+                where: {
+                    workflowId: existingWorkflow.id,
+                }
+            })
+            // Step 3: Create New Nodes and Connections
+             await tx.node.createMany({
+                data: nodes.map((node) => ({
+                    id: node.id,
+                    workflowId: workflowId,
+                    name: node.type || "Unnamed Node",
+                    type: node.type as NodeType,
+                    position: node.position,
+                    data: node.data || {}
+                }))
+            })
+            await tx.connection.createMany({
+                data: edges.map((edge) => ({
+                    workflowId: workflowId,
+                    fromNodeId: edge.source,
+                    toNodeId: edge.target,
+                    fromOutput: edge.sourceHandle || "main",
+                    toInput: edge.targetHandle || "main"
+                }))
+            })
+            await tx.workflow.update({
+                where: {
+                    id: workflowId
+                },
+                data: {
+                    updatedAt: new Date()
+                }
+            })
+        })
+        return c.json({
+            ok: true,
+            message: 'Workflow nodes and edges updated successfully',
+            nodes: updatedNodes,
+        })
+    } catch (error) {
+        console.error('Error updating workflow nodes and edges:', error);
+        return c.json({
+            ok: false,
+            message: 'Error updating workflow nodes and edges',
+        }, 500);
     }
 })
