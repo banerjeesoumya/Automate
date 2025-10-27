@@ -23,7 +23,7 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
     // 🔒 If the page requires authentication
     if (requireAuth && !session?.user) {
       router.replace("/signin")
-      toast.info("You must be signed in to access that page.")
+      // toast.info("You must be signed in to access that page.")
       return
     }
 
