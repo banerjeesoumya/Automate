@@ -1,16 +1,15 @@
-// import { PrismaClient } from "@/generated/prisma"
+  import { PrismaClient } from "../generated/prisma/edge";
+  import { withAccelerate } from "@prisma/extension-accelerate";
 
-import { PrismaClient } from "@prisma/client/edge"
+  let prisma: PrismaClient | null = null;
 
-
-const globalForPrisma = globalThis as unknown as {
-  prisma?: PrismaClient;
-};
-
-// Create the client (edge-safe)
-export const prisma =  globalForPrisma.prisma ?? new PrismaClient();
-
-// Cache it only in development (safe for local dev)
-if (typeof globalThis !== "undefined") {
-  globalForPrisma.prisma = prisma;
-}
+  // ✅ Cloudflare Workers create isolated instances per edge VM,
+  // so caching once per instance is sufficient.
+  export function getDB(env: { CONNECTION_POOL_URL: string }) {
+    if (!prisma) {
+      prisma = new PrismaClient({
+        datasourceUrl: env.CONNECTION_POOL_URL,
+      }).$extends(withAccelerate()) as unknown as PrismaClient;
+    }
+    return prisma;
+  }
