@@ -16,7 +16,7 @@ export const credsRouter = new Hono<{
    ======================================================== */
 credsRouter.post("/signup", async (c) => {
   const db = getDB(c.env);
-  const auth = createAuth(c.env);
+  // const auth = createAuth(c.env);
   const { email, password, name } = await c.req.json();
 
   if (!email || !password) {
@@ -67,10 +67,14 @@ credsRouter.post("/signup", async (c) => {
     },
   });
 
-  // ✅ Set cookie manually (BetterAuth-compatible)
+  const isProduction = c.env.NODE_ENV === "production";
+  const cookieName = isProduction
+    ? "__Secure-better-auth.session_token"
+    : "better-auth.session_token";
+
   c.header(
     "Set-Cookie",
-    `better-auth.session=${token}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${
+    `${cookieName}=${token}; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; ${isProduction ? "Partitioned; " : ""}Max-Age=${
       7 * 24 * 60 * 60
     }`
   );
@@ -132,9 +136,14 @@ credsRouter.post("/signin", async (c) => {
   });
 
   // ✅ Set BetterAuth-compatible cookie
+  const isProduction = c.env.NODE_ENV === "production";
+  const cookieName = isProduction
+    ? "__Secure-better-auth.session_token"
+    : "better-auth.session_token";
+
   c.header(
     "Set-Cookie",
-    `better-auth.session=${token}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${
+    `${cookieName}=${token}; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; ${isProduction ? "Partitioned; " : ""}Max-Age=${
       7 * 24 * 60 * 60
     }`
   );
@@ -152,16 +161,82 @@ credsRouter.post("/signin", async (c) => {
 credsRouter.post("/signout", async (c) => {
   const db = getDB(c.env);
   const cookie = c.req.header("Cookie");
-  const token = cookie?.match(/better-auth\.session=([^;]+)/)?.[1];
+  const token = cookie?.match(/better-auth\.session_token=([^;]+)/)?.[1];
 
   if (token) {
     await db.session.deleteMany({ where: { token } });
   }
 
+  const isProduction = c.env.NODE_ENV === "production";
+  const cookieName = isProduction
+    ? "__Secure-better-auth.session_token"
+    : "better-auth.session_token";
+
   c.header(
-    "Set-Cookie",
-    "better-auth.session=; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=0"
-  );
+  "Set-Cookie",
+  `${cookieName}=; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; Max-Age=0`
+);
+
 
   return c.json({ message: "Logged out successfully." });
+});
+
+/* ========================================================
+   🧩 GET SESSION — Manual credentials session
+   ======================================================== */
+credsRouter.get("/get-session", async (c) => {
+  const db = getDB(c.env);
+  const cookie = c.req.header("Cookie") || "";
+
+  // Extract either local or production cookie name
+  const token =
+    cookie.match(/better-auth\.session_token=([^;]+)/)?.[1] ??
+    cookie.match(/__Secure-better-auth\.session_token=([^;]+)/)?.[1];
+
+  if (!token) {
+    return c.json({ session: null, user: null, message: "No session cookie" }, 401);
+  }
+
+  // Find matching session and user
+  const session = await db.session.findUnique({
+    where: { token },
+    include: { user: { include: { accounts: true } } },
+  });
+
+  if (!session || !session.user) {
+    return c.json({ session: null, user: null, message: "Invalid or expired session" }, 401);
+  }
+
+  // Optional: auto-delete expired sessions
+  if (new Date(session.expiresAt) < new Date()) {
+    await db.session.delete({ where: { id: session.id } });
+    return c.json({ session: null, user: null, message: "Session expired" }, 401);
+  }
+
+  // Detect provider
+  const provider = session.user.accounts?.[0]?.providerId ?? "credentials";
+
+  // ✅ Response matches BetterAuth’s /api/auth/get-session structure
+  return c.json({
+    session: {
+      id: session.id,
+      token: session.token,
+      userId: session.userId,
+      ipAddress: session.ipAddress ?? "",
+      userAgent: session.userAgent ?? "",
+      createdAt: session.createdAt,
+      updatedAt: session.updatedAt,
+      expiresAt: session.expiresAt,
+    },
+    user: {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      emailVerified: session.user.emailVerified,
+      image: session.user.image,
+      createdAt: session.user.createdAt,
+      updatedAt: session.user.updatedAt,
+      provider, // helpful extra field for frontend
+    },
+  });
 });

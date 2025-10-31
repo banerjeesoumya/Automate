@@ -20,6 +20,7 @@ app.use(
       "http://localhost:3000",
       "http://127.0.0.1:3000",
       "https://automate-xi-jet.vercel.app",
+      "https://automate-git-featureauth-soumya-banerjees-projects.vercel.app",
     ],
     allowMethods: ["GET", "POST", "OPTIONS", "PUT", "DELETE", "PATCH"],
     credentials: true,

@@ -39,14 +39,25 @@ export function createAuth(env: Env) {
 
     // ✅ production base URL
     baseURL: "https://backend.banerjeerik03.workers.dev",
+    // baseURL: "http://127.0.0.1:8787",
 
     // ✅ allowed origins (CORS)
     trustedOrigins: [
       "https://backend.banerjeerik03.workers.dev",
       "https://automate-xi-jet.vercel.app",
+      "https://automate-git-featureauth-soumya-banerjees-projects.vercel.app",
       "http://localhost:5173",
       "http://localhost:3000",
       "http://127.0.0.1:3000",
     ],
   });
+}
+
+let _cachedAuth: ReturnType<typeof createAuth> | null = null;
+
+export function getAuth(env: Env) {
+  if (!_cachedAuth) {
+    _cachedAuth = createAuth(env);
+  }
+  return _cachedAuth;
 }
