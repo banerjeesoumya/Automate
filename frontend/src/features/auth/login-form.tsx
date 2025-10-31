@@ -13,6 +13,7 @@ import z from "zod"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { useAuthRedirect } from "@/hooks/useAuthRedirect"
+import { credsApi } from "@/lib/api"
 
 const loginSchema = z.object({
     email: z.email("Please enter a valid email address"),
@@ -37,22 +38,32 @@ export const LoginForm = () => {
         },
     })
     const onSubmit = async (values: LoginFormValues) => {
-        await authClient.signIn.email({
-            email: values.email,
-            password: values.password,
-            // callbackURL: "/"
-        }, {
-            onSuccess: async () => {
-                // router.push("/")
-                console.log("Login successful")
-                // const response = await authClient.getSession()
-                // console.log(response)
-                router.push("/")
-            },
-            onError: (ctx) => {
-                toast.error(ctx.error.message)
-            }
-        });
+        try {
+            await credsApi.signInWithEmail(values.email, values.password);
+            const session = await authClient.getSession();
+            console.log("Logged in user session:", session);
+            router.push("/");
+        } catch (error) {
+            // @ts-ignore
+            toast.error(error.response?.data?.message || "Login failed");
+            return;
+        }
+        // await authClient.signIn.email({
+        //     email: values.email,
+        //     password: values.password,
+        //     // callbackURL: "/"
+        // }, {
+        //     onSuccess: async () => {
+        //         // router.push("/")
+        //         console.log("Login successful")
+        //         // const response = await authClient.getSession()
+        //         // console.log(response)
+        //         router.push("/")
+        //     },
+        //     onError: (ctx) => {
+        //         toast.error(ctx.error.message)
+        //     }
+        // });
     } 
     const isPending = form.formState.isSubmitting
     return (
@@ -76,6 +87,18 @@ export const LoginForm = () => {
                                         className="w-full"
                                         type="button"
                                         disabled={isPending}
+                                        onClick={async () => {
+                                            const response = await authClient.signIn.social({
+                                                provider: "google",
+                                            }, {
+                                                onSuccess: async () => {
+                                                    router.push("/");
+                                                },
+                                                onError: (ctx) => {
+                                                    toast.error(ctx.error.message || "Login failed. Please try again.");
+                                                }
+                                            })
+                                        }}
                                     >
                                         <Image alt="Google" src="/google.svg" width={20} height={20} />
                                         Sign in with Google
@@ -85,6 +108,18 @@ export const LoginForm = () => {
                                         className="w-full"
                                         type="button"
                                         disabled={isPending}
+                                        onClick={async () => {
+                                            const response = await authClient.signIn.social({
+                                                provider: "github",
+                                            }, {
+                                                onSuccess: async () => {
+                                                    router.push("/");
+                                                },
+                                                onError: (ctx) => {
+                                                    toast.error(ctx.error.message || "Login failed. Please try again.");
+                                                }
+                                            })
+                                        }}
                                     >
                                         <Image alt="Github" src="/github.svg" width={20} height={20} />
                                         Sign in with Github

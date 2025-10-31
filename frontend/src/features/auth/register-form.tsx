@@ -13,6 +13,8 @@ import z from "zod"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { useAuthRedirect } from "@/hooks/useAuthRedirect"
+import { credsApi } from "@/lib/api"
+import { ro } from "date-fns/locale"
 
 const registerSchema = z.object({
     email: z.email("Please enter a valid email address"),
@@ -42,26 +44,34 @@ export const RegisterForm = () => {
         },
     })
     const onSubmit = async (values: RegisterFormValues) => {
-        await authClient.signUp.email(
-            {
-                name: values.email,
-                email: values.email,
-                password: values.password,
-                // callbackURL: "/"
-            },
-            {
-                onSuccess: async () => {
-                    // router.push("/")
-                    console.log("Registration successful")
-                    const response = await authClient.getSession()
-                    // console.log(response)
-                    router.push("/")
-                },
-                onError: (ctx) => {
-                    toast.error(ctx.error.message)
-                }
-            }
-        )
+        try {
+            const response = await credsApi.signUpWithEmail(values.email, values.password, values.email);
+            router.push("/");
+        } catch (error) {
+            // @ts-ignore
+            toast.error(error.response?.data?.message || "Signup failed");
+            return
+        }
+        // await authClient.signUp.email(
+        //     {
+        //         name: values.email,
+        //         email: values.email,
+        //         password: values.password,
+        //         // callbackURL: "/"
+        //     },
+        //     {
+        //         onSuccess: async () => {
+        //             // router.push("/")
+        //             console.log("Registration successful")
+        //             const response = await authClient.getSession()
+        //             // console.log(response)
+        //             router.push("/")
+        //         },
+        //         onError: (ctx) => {
+        //             toast.error(ctx.error.message)
+        //         }
+        //     }
+        // )
     } 
     const isPending = form.formState.isSubmitting
     return (
@@ -85,6 +95,18 @@ export const RegisterForm = () => {
                                         className="w-full"
                                         type="button"
                                         disabled={isPending}
+                                        onClick={async () => {
+                                            const response = await authClient.signIn.social({
+                                                provider: "google",
+                                            }, {
+                                                onSuccess: async () => {
+                                                    router.push("/");
+                                                }, 
+                                                onError: (ctx) => {
+                                                    toast.error(ctx.error.message || "Login failed. Please try again.");
+                                                }
+                                            })
+                                        }}
                                     >
                                         <Image alt="Google" src="/google.svg" width={20} height={20} />
                                         Sign in with Google
@@ -94,6 +116,18 @@ export const RegisterForm = () => {
                                         className="w-full"
                                         type="button"
                                         disabled={isPending}
+                                        onClick={async () => {
+                                            const response = await authClient.signIn.social({
+                                                provider: "github",
+                                            }, {
+                                                onSuccess: async () => {
+                                                    router.push("/");
+                                                },
+                                                onError: (ctx) => {
+                                                    toast.error(ctx.error.message || "Login failed. Please try again.");
+                                                }
+                                            })
+                                        }}
                                     >
                                         <Image alt="Github" src="/github.svg" width={20} height={20} />
                                         Sign in with Github

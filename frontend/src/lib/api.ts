@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BACKEND_URL = "https://backend.banerjeerik03.workers.dev/api";
+const BACKEND_URL = "http://127.0.0.1:8787/api";
 
 // === Types ===
 export interface NodeData {
@@ -64,6 +64,43 @@ export const api = axios.create({
 });
 
 // === API functions ===
+
+export const credsApi = {
+  signUpWithEmail: async (email: string, password: string, name?: string) => {
+    const response = await api.post("/creds/signup", {
+      email,
+      password,
+      name,
+    });
+    return response.data;
+  },
+  signInWithEmail: async (email: string, password: string) => {
+    const response = await api.post("/creds/signin", {
+      email,
+      password,
+    });
+    return response.data;
+  },
+  signOut: async () => {
+    const response = await api.post("/creds/signout");
+    return response.data;
+  },
+  getSession: async () => {
+    try {
+      const response = await api.get("/creds/get-session");
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        // Expected — user is signed out
+        return { session: null, user: null };
+      }
+      throw error; // Re-throw any unexpected errors
+    }
+  },
+}
+
+
+
 export const workflowApi = {
   createWorkflow: async () => {
     const response = await api.post<WorkflowResponse>("/workflows");
