@@ -5,5 +5,6 @@ export type Env = {
     JWT_SECRET: string,
     CONNECTION_POOL_URL: string,
     CHAT_ROOM: DurableObjectNamespace
-    AI: Ai
+    AI: Ai,
+    NODE_ENV: 'development' | 'production',
 }

@@ -1,56 +1,70 @@
-import { Hono } from 'hono'
-import { Env } from './types/env'
-import { createAuth } from './utils/auth'
-import { conversationRouter } from './routes/conversation'
-import { workflowRouter } from './routes/workflow'
-import { PrismaClient } from './generated/prisma/edge'
-import { withAccelerate } from '@prisma/extension-accelerate'
-import { cors } from 'hono/cors'
+import { Hono } from "hono";
+import { Env } from "./types/env";
+import { createAuth } from "./utils/auth";
+import { workflowRouter } from "./routes/workflow";
+import { getDB } from "./db/client";
+import { cors } from "hono/cors";
+import { credsRouter } from "./routes/credsAuth";
 
 interface CustomContext {
-  userId?: string,
+  userId?: string;
 }
 
-const app = new Hono<{
-  Bindings: Env,
-  Variables: CustomContext
-}>()
+const app = new Hono<{ Bindings: Env; Variables: CustomContext }>();
 
+// ✅ Global CORS
 app.use(
-  '*',
+  "*",
   cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://automate-xi-jet.vercel.app'],
-    allowMethods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE', 'PATCH'],
+    origin: [
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "https://automate-xi-jet.vercel.app",
+      "https://automate-git-featureauth-soumya-banerjees-projects.vercel.app",
+    ],
+    allowMethods: ["GET", "POST", "OPTIONS", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => {
-  const auth = createAuth(c.env);
-  console.log(c.env.CONNECTION_POOL_URL);
-  console.log("BetterAuth routes:");
-  return auth.handler(c.req.raw);
+// ✅ Instantiate BetterAuth once per Worker isolate
+let authInstance: ReturnType<typeof createAuth> | null = null;
+function getAuth(env: Env) {
+  if (!authInstance) {
+    authInstance = createAuth(env);
+  }
+  return authInstance;
+}
+
+// ✅ Auth routes
+app.on(["GET", "POST"], "/api/auth/*", async (c) => {
+  const startCpu = performance.now();
+  const auth = getAuth(c.env);
+  const result = await auth.handler(c.req.raw);
+  const endCpu = performance.now();
+  console.log(`(log) Auth handler took ${(endCpu - startCpu).toFixed(2)}ms CPU`);
+  return result;
 });
 
-app.get('/api/health', async (c) => {
-  const db = new PrismaClient({
-    datasourceUrl: c.env.CONNECTION_POOL_URL
-  }).$extends(withAccelerate());
-  if (!db) {
-    return c.json({ message: 'Database connection error' }, 500);
+// ✅ Health check
+app.get("/api/health", async (c) => {
+  const db = getDB(c.env);
+  const users = await db.user.findMany().catch(() => null);
+  if (!users) {
+    return c.json({ message: "Database connection error" }, 500);
   }
-  return c.json({ message: 'Hello, Hono with Postgres and Prisma ORM!' })
-})
+  return c.json({ message: "Healthy", usersCount: users.length });
+});
 
-app.get('/api/hello', async (c) => {
-  const auth = createAuth(c.env);
+// ✅ Example route to test session
+app.get("/api/hello", async (c) => {
+  const auth = getAuth(c.env);
   const session = await auth.api.getSession(c.req.raw);
   return c.json({ session });
-})
+});
 
-app.route('/api', conversationRouter);
-app.route('/api', workflowRouter);
+// ✅ Other routes
+app.route("/api/creds", credsRouter);
+app.route("/api", workflowRouter);
 
-
-export default app
-export { ChatRoom } from './durable/ChatRoom'
+export default app;

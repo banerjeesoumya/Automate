@@ -81,6 +81,7 @@ workflowRouter.get("/workflows/all", authMiddleware(), async (c) => {
   }).$extends(withAccelerate());
 
   const userId = c.get("userId");
+  console.log("Fetching workflows for user:", userId);
   if (!userId) {
     return c.json({ message: "User not logged in" }, 401);
   }
