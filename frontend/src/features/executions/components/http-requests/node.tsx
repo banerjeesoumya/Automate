@@ -5,6 +5,7 @@ import { memo, useState } from "react";
 
 import { GlobeIcon } from "lucide-react";
 import { BaseExecutionNode } from "../base-execution-node";
+import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 // import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
 type HTTPRequestNodeData = {
@@ -25,43 +26,43 @@ export const HTTPRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
         ? `${nodeData.method || "GET"} ${nodeData.endpoint}`
         : "Not Configured";
 
-    const nodeStatus = "initial"
+    const nodeStatus = "initial";
 
     const handleSettings = () => setDialogOpen(true);
 
-    const handleSubmit = () => {
-        // setNodes((nodes) => nodes.map((node) => {
-        //     if (node.id === props.id) {
-        //         return {
-        //             ...node,
-        //             data: {
-        //                 ...node.data,
-        //                 endpoint: values.endpoint,
-        //                 method: values.method,
-        //                 body: values.body,
-        //             }
-        //         }
-        //     }
-        //     return node;
-        // }))
+    const handleSubmit = (values: FormType) => {
+        setNodes((nodes) => nodes.map((node) => {
+            if (node.id === props.id) {
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        endpoint: values.endpoint,
+                        method: values.method,
+                        body: values.body,
+                    }
+                }
+            }
+            return node;
+        }))
     }
 
     return (
         <>
-            {/* <HTTPRequestTriggerDialog 
+            <HTTPRequestTriggerDialog 
                 open={dialogOpen} 
                 onOpenChange={setDialogOpen}
                 onSubmit={handleSubmit}
                 defaultEndpoint={nodeData.endpoint}
                 defaultMethod={nodeData.method}
                 defaultBody={nodeData.body}
-            /> */}
+            />
             <BaseExecutionNode
                 {...props}
                 id={props.id}
                 icon={GlobeIcon}
                 name="HTTP Request"
-                
+                status={nodeStatus}
                 description={description}
                 onDoubleClick={handleSettings}
                 onSettings={handleSettings}
