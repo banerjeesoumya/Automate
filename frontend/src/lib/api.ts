@@ -132,3 +132,44 @@ export const workflowApi = {
     return response.data;
   }
 };
+
+export interface DeleteCredentialResponse {
+  ok: boolean;
+  credential: {
+    id: string;
+    name: string;
+    type: string;
+    value: string;
+    userId: string;
+  };
+  message: string;
+}
+
+
+
+export const credentialApi = {
+  createCredential: async (name: string, type: string, value: string) => {
+    const response = await api.post("/credentials", {
+      name,
+      type,
+      value,
+    });
+    return response.data;
+  },
+  deleteCredential: async (params: { id: string }) => {
+    const response = await api.delete<DeleteCredentialResponse>(`/credentials/${params.id}`);
+    return response.data;
+  },
+  updateCredential: async (params: { id: string }, name?: string, type?: string, value?: string) => {
+    const response = await api.put(`/credentials/${params.id}`, { name, type, value });
+    return response.data;
+  },
+  getOneCredential: async (params: { id: string }) => {
+    const response = await api.get(`/credentials/${params.id}`);
+    return response.data;
+  },
+  getManyCredentials: async (params: { page: number; pageSize: number; search?: string }) => {
+    const response = await api.get("/credentials/all", { params });
+    return response.data;
+  }
+}

@@ -21,7 +21,7 @@ const createCredentialSchema = z.object({
     value: z.string().min(1, "Value is required"),
 })
 
-credentialRouter.post('crdentials', authMiddleware, async(c) => {
+credentialRouter.post('/credentials', authMiddleware, async(c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate());
