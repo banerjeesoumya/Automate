@@ -17,3 +17,9 @@ export enum NodeType {
   Manual_Trigger = "Manual_Trigger",
   HTTP_Request = "HTTP_Request",
 }
+
+export enum CredentialType {
+  Gemini = "Gemini",
+  OpenAI = "OpenAI",
+  Anthropic = "Anthropic",
+}

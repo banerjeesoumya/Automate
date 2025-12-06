@@ -292,3 +292,46 @@ credentialRouter.get('/credentials/all', authMiddleware, async(c) => {
         return c.json({ ok: false, message: "Error fetching credentials" }, 500);
     }
 })
+
+const getCredentialByTypeSchema = z.object({
+    type: z.string().refine((val) => Object.values(CredentialType).includes(val as CredentialType), {
+        message: "Invalid credential type",
+    }),
+})
+
+credentialRouter.get('/credentials/type/:type', authMiddleware, async(c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.CONNECTION_POOL_URL
+    }).$extends(withAccelerate());
+
+    const userId = c.get("userId");
+    if (!userId) {
+        return c.json({ error: "User not logged in" }, 401);
+    }
+
+    const type = c.req.param("type");
+
+    const parseResult = getCredentialByTypeSchema.safeParse({ type });
+
+    if (!parseResult.success) {
+        return c.json({ message: "Invalid request", errors: parseResult.error.errors }, 400);
+    }
+
+    try {
+        const credentials = await prisma.credential.findMany({
+            where: {
+                userId: userId,
+                type: parseResult.data.type as CredentialType,
+            },
+            orderBy: { updatedAt: "desc" },
+        });
+        return c.json({
+            ok: true,
+            credentials: credentials,
+            message: "Credentials fetched successfully",
+        }, 200);
+    } catch (error) {
+        console.error("Error fetching credentials by type:", error);
+        return c.json({ ok: false, message: "Error fetching credentials" }, 500);
+    }
+})

@@ -171,5 +171,11 @@ export const credentialApi = {
   getManyCredentials: async (params: { page: number; pageSize: number; search?: string }) => {
     const response = await api.get("/credentials/all", { params });
     return response.data;
+  },
+  getCredentialsByType: async (type: string) => {
+    const response = await api.get("/credentials/type", {
+      params: { type },
+    });
+    return response.data;
   }
 }
