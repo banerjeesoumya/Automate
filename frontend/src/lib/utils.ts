@@ -19,7 +19,19 @@ export enum NodeType {
 }
 
 export enum CredentialType {
-  Gemini = "Gemini",
-  OpenAI = "OpenAI",
-  Anthropic = "Anthropic",
+  GEMINI = "GEMINI",
+  OPEN_AI = "OPEN_AI",
+  ANTHROPIC = "ANTHROPIC",
+}
+
+export interface Credential {
+  id: string
+  name: string
+  value: string
+  type: CredentialType
+
+  userId: string
+
+  createdAt: string | Date
+  updatedAt: string | Date
 }

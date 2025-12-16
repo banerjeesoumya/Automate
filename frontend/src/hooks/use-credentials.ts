@@ -15,7 +15,7 @@ export const useCreateCredential = () => {
             credentialApi.createCredential(vars.name, vars.type, vars.value),
 
         onSuccess: (data: any) => {
-            const name = data?.credential?.name ?? "Untitled";
+            const name = data.credential.name ?? "Untitled";
             toast.success(`Credential "${name}" created successfully`);
 
             queryClient.invalidateQueries({ queryKey: ["credentials"] });
@@ -52,7 +52,7 @@ export const useDeleteCredential = () => {
             return { previousData };
         },
         onSuccess: (data) => {
-            const name = data?.credential?.name ?? "Untitled";
+            const name = data.deletedCredential.name ?? "Untitled";
             toast.success(`Credential "${name}" deleted successfully`);
             queryClient.invalidateQueries({ queryKey: ["credentials"] });
         },
@@ -74,8 +74,9 @@ export const useSuspenseCredential = (id: string) => {
     return useSuspenseQuery({
         queryKey: ["credential", id],
         queryFn: () => credentialApi.getOneCredential({ id }),
-    })
-}
+    });
+};
+
 
 export const useUpdateCredential = () => {
     const router = useRouter();
@@ -127,11 +128,12 @@ export const useUpdateCredential = () => {
 
 export const useSuspenseCredentials = () => {
     const [params] = useCredentialsParams();
+
     return useSuspenseQuery({
         queryKey: ["credentials", params],
         queryFn: () => credentialApi.getManyCredentials(params),
     });
-}
+};
 
 export const useSuspenseCredentialTypes = (type: CredentialType) => {
     return useSuspenseQuery({

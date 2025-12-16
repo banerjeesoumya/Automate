@@ -5,6 +5,8 @@ import { workflowRouter } from "./routes/workflow";
 import { getDB } from "./db/client";
 import { cors } from "hono/cors";
 import { credsRouter } from "./routes/credsAuth";
+import { authMiddleware } from "./utils/authMiddleware";
+import { credentialRouter } from "./routes/credentials";
 
 interface CustomContext {
   userId?: string;
@@ -57,14 +59,18 @@ app.get("/api/health", async (c) => {
 });
 
 // ✅ Example route to test session
-app.get("/api/hello", async (c) => {
+app.get("/api/hello", authMiddleware(), async (c) => {
   const auth = getAuth(c.env);
-  const session = await auth.api.getSession(c.req.raw);
-  return c.json({ session });
+  const userId = c.get("userId");
+
+  console.log("Datasource URL:", c.env.CONNECTION_POOL_URL);
+  return c.json({ userId });
 });
 
 // ✅ Other routes
 app.route("/api/creds", credsRouter);
-app.route("/api", workflowRouter);
+app.route("/api/workflows", workflowRouter);
+app.route("/api/credentials", credentialRouter)
+// app.route("/api/executions", executionRouter);
 
 export default app;

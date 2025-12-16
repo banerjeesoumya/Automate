@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Credential } from "./utils";
 
 const BACKEND_URL = "http://127.0.0.1:8787/api";
 
@@ -103,12 +104,12 @@ export const credsApi = {
 
 export const workflowApi = {
   createWorkflow: async () => {
-    const response = await api.post<WorkflowResponse>("/workflows");
+    const response = await api.post<WorkflowResponse>("/workflows/create");
     return response.data;
   },
 
   getOneWorkflow: async (id?: string) => {
-    const response = await api.get<GetOneWorkflowResponse>(`/workflows/${id}`);
+    const response = await api.get<GetOneWorkflowResponse>(`/workflows/get/${id}`);
     return response.data;
   },
 
@@ -118,38 +119,78 @@ export const workflowApi = {
   },
 
   deleteWorkflow: async (params: { id: string }) => {
-    const response = await api.delete<WorkflowResponse>(`/workflows/${params.id}`);
+    const response = await api.delete<WorkflowResponse>(`/workflows/delete/${params.id}`);
     return response.data;
   },
 
   updateWorkflowName: async (params: { id: string }, name: string) => {
-    const response = await api.patch<WorkflowResponse>(`/workflows/${params.id}`, { name });
+    const response = await api.patch<WorkflowResponse>(`/workflows/update/${params.id}`, { name });
     return response.data;
   },
 
   updateWorkflowNodesAndEdges: async (params: { id: string }, nodes: NodeData[], edges: EdgeData[]) => {
-    const response = await api.put(`/workflows/${params.id}/nodes`, { nodes, edges });
+    const response = await api.put(`/workflows/update/${params.id}/nodes`, { nodes, edges });
     return response.data;
   }
 };
 
 export interface DeleteCredentialResponse {
   ok: boolean;
-  credential: {
+  message: string;
+  deletedCredential: {
     id: string;
     name: string;
     type: string;
     value: string;
     userId: string;
+    createdAt: string;
+    updatedAt: string;
   };
+}
+
+export interface GetCredentialByType {
+  ok: boolean;
+  credentials: Credential[];
   message: string;
 }
 
+export interface GetOneCredentialResponse {
+  ok: boolean;
+  credential: Credential;
+  message: string;
+} 
 
+export interface PaginatedCredentialResponse {
+  ok: boolean;
+  items: Credential[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  message: string;
+}
+
+export interface UpdateCredentialResponse {
+  ok: boolean;
+  message: string;
+  credential: Credential;
+}
+
+export interface CreateCredentialResponse {
+  ok: boolean;
+  message: string;
+  credential: {
+    id: string;
+    name: string;
+    type: string;
+  }
+}
 
 export const credentialApi = {
   createCredential: async (name: string, type: string, value: string) => {
-    const response = await api.post("/credentials", {
+    const response = await api.post<CreateCredentialResponse>("/credentials/create", {
       name,
       type,
       value,
@@ -161,21 +202,30 @@ export const credentialApi = {
     return response.data;
   },
   updateCredential: async (params: { id: string }, name?: string, type?: string, value?: string) => {
-    const response = await api.put(`/credentials/${params.id}`, { name, type, value });
+    const response = await api.put<UpdateCredentialResponse>(`/credentials/${params.id}`, { name, type, value });
     return response.data;
   },
-  getOneCredential: async (params: { id: string }) => {
-    const response = await api.get(`/credentials/${params.id}`);
-    return response.data;
-  },
+  getOneCredential: async (params: {id: string}) => {
+  const response = await api.get<GetOneCredentialResponse>(`/credentials/${params.id}`);
+
+  return response.data;
+},
+
   getManyCredentials: async (params: { page: number; pageSize: number; search?: string }) => {
-    const response = await api.get("/credentials/all", { params });
+    const response = await api.get<PaginatedCredentialResponse>("/credentials/all", { params });
+
     return response.data;
   },
+
   getCredentialsByType: async (type: string) => {
-    const response = await api.get("/credentials/type", {
+    const response = await api.get<GetCredentialByType>("/credentials/type", {
       params: { type },
     });
     return response.data;
   }
 }
+
+// getManyCredentials: async (params: { page: number; pageSize: number; search?: string }) => {
+//     const response = await api.get("/credentials/all", { params });
+//     return response.data;
+//   },

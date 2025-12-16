@@ -6,7 +6,7 @@ import { NodeType, PrismaClient } from '../generated/prisma/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import z from 'zod';
 import { PAGINATION } from '../utils/constants';
-import type { Node } from '@xyflow/react';
+import type { Node } from '@xyflow/react';  
 import { id } from 'zod/v4/locales';
 
 export const workflowRouter = new Hono<{
@@ -17,7 +17,7 @@ export const workflowRouter = new Hono<{
 }>();
 
 
-workflowRouter.post('/workflows', authMiddleware(), async (c) => {
+workflowRouter.post('/create', authMiddleware(), async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate());
@@ -75,7 +75,7 @@ const getAllWorkflowsSchema = z.object({
   search: z.string().optional().default(""),
 });
 
-workflowRouter.get("/workflows/all", authMiddleware(), async (c) => {
+workflowRouter.get("/all", authMiddleware(), async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.CONNECTION_POOL_URL,
   }).$extends(withAccelerate());
@@ -142,7 +142,7 @@ workflowRouter.get("/workflows/all", authMiddleware(), async (c) => {
   }
 });
 
-workflowRouter.get('/workflows/:id', authMiddleware(), async (c) => {
+workflowRouter.get('/get/:id', authMiddleware(), async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate());
@@ -200,7 +200,7 @@ workflowRouter.get('/workflows/:id', authMiddleware(), async (c) => {
     }
 })
 
-workflowRouter.patch('/workflows/:id', authMiddleware(), async (c) => {
+workflowRouter.patch('/update/:id', authMiddleware(), async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate());
@@ -240,7 +240,7 @@ const deleteWorkflowSchema = z.object({
     id: z.string()
 });
 
-workflowRouter.delete('/workflows/:id', authMiddleware(), async (c) => {
+workflowRouter.delete('/delete/:id', authMiddleware(), async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate());
@@ -302,7 +302,7 @@ const updateWorkflowSchema = z.object({
     )
 })
 
-workflowRouter.put('/workflows/:id/nodes', authMiddleware(), async (c) => {
+workflowRouter.put('/update/:id/nodes', authMiddleware(), async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate());
