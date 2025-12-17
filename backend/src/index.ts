@@ -7,6 +7,7 @@ import { cors } from "hono/cors";
 import { credsRouter } from "./routes/credsAuth";
 import { authMiddleware } from "./utils/authMiddleware";
 import { credentialRouter } from "./routes/credentials";
+import { executionRouter } from "./routes/executions";
 
 interface CustomContext {
   userId?: string;
@@ -71,6 +72,6 @@ app.get("/api/hello", authMiddleware(), async (c) => {
 app.route("/api/creds", credsRouter);
 app.route("/api/workflows", workflowRouter);
 app.route("/api/credentials", credentialRouter)
-// app.route("/api/executions", executionRouter);
+app.route("/api/executions", executionRouter);
 
 export default app;
