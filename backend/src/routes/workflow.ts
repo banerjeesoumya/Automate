@@ -8,6 +8,7 @@ import z from 'zod';
 import { PAGINATION } from '../utils/constants';
 import type { Node } from '@xyflow/react';  
 import { id } from 'zod/v4/locales';
+import { ok } from 'better-auth/api';
 
 export const workflowRouter = new Hono<{
     Bindings: Env,
@@ -52,6 +53,54 @@ workflowRouter.post('/create', authMiddleware(), async (c) => {
         return c.json({
             ok: false,
             message: 'Error creating workflow',
+        }, 500);
+    }
+})
+
+workflowRouter.post('/execute-workflow', authMiddleware(), async (c) => {
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.CONNECTION_POOL_URL
+    }).$extends(withAccelerate());
+
+    const userId = c.get('userId');
+    console.log('Executing workflow for user:', userId);
+    if (!userId) {
+        return c.json({ message: 'User not logged in' }, 401);
+    }
+
+    const body = await c.req.json<{ workflowId: string }>();
+    const workflowId = body.workflowId;
+    if (!workflowId) {
+        return c.json({ error: 'Workflow ID is required' }, 400);
+    }
+
+    try {
+        const workflow = await prisma.workflow.findUniqueOrThrow({
+            where: {
+                id: workflowId,
+                userId: userId,
+            }
+        })
+        // Here you would add the logic to actually execute the workflow.
+        const execution = await c.env.MY_WORKFLOW.create({
+            params: {
+                email: userId,
+                id: "execute-workflow",
+                eventName: "workflows/execute.workflow",
+                workflowId: workflowId, 
+            }
+        })
+
+        return c.json({
+            ok: true,
+            message: 'Workflow execution started',
+            execution
+        })
+    } catch (error) {
+        console.error('Error executing workflow:', error);
+        return c.json({
+            ok: false,
+            message: 'Error executing workflow',
         }, 500);
     }
 })

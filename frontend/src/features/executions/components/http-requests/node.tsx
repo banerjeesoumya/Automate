@@ -5,14 +5,13 @@ import { memo, useState } from "react";
 
 import { GlobeIcon } from "lucide-react";
 import { BaseExecutionNode } from "../base-execution-node";
-import { FormType, HTTPRequestTriggerDialog } from "./dialog";
+import { HTTPRequestFormValues, HTTPRequestTriggerDialog } from "./dialog";
 // import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
 type HTTPRequestNodeData = {
     endpoint: string;
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     body?: string;
-    [key: string]: unknown;
 }
 
 type HTTPRequestNodeType = Node<HTTPRequestNodeData>;
@@ -30,16 +29,14 @@ export const HTTPRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
 
     const handleSettings = () => setDialogOpen(true);
 
-    const handleSubmit = (values: FormType) => {
+    const handleSubmit = (values: HTTPRequestFormValues) => {
         setNodes((nodes) => nodes.map((node) => {
             if (node.id === props.id) {
                 return {
                     ...node,
                     data: {
                         ...node.data,
-                        endpoint: values.endpoint,
-                        method: values.method,
-                        body: values.body,
+                        ...values
                     }
                 }
             }
@@ -53,9 +50,7 @@ export const HTTPRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
                 open={dialogOpen} 
                 onOpenChange={setDialogOpen}
                 onSubmit={handleSubmit}
-                defaultEndpoint={nodeData.endpoint}
-                defaultMethod={nodeData.method}
-                defaultBody={nodeData.body}
+                defaultValues={nodeData}
             />
             <BaseExecutionNode
                 {...props}

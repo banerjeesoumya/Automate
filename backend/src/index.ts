@@ -8,6 +8,11 @@ import { credsRouter } from "./routes/credsAuth";
 import { authMiddleware } from "./utils/authMiddleware";
 import { credentialRouter } from "./routes/credentials";
 import { executionRouter } from "./routes/executions";
+import { MyWorkflow } from "./workflows/execute-workflow";
+
+export {
+  MyWorkflow
+}
 
 interface CustomContext {
   userId?: string;

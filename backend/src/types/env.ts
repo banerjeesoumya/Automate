@@ -7,4 +7,12 @@ export type Env = {
     CHAT_ROOM: DurableObjectNamespace
     AI: Ai,
     NODE_ENV: 'development' | 'production',
+    MY_WORKFLOW:  Workflow<Params>
 }
+
+type Params = {
+  email: string;
+  id: "execute-workflow";
+  eventName: "workflows/execute.workflow";
+  workflowId?: string;
+};

@@ -28,6 +28,23 @@ export const useCreateWorkflow = () => {
   });
 };
 
+export const useExecuteWorkflow = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["executeWorkflow"],
+    mutationFn: async ({ workflowId }: { workflowId: string }) => {
+      workflowApi.executeWorkflow({ workflowId });
+    },
+    onSuccess: () => {
+      toast.success("Workflow execution started successfully");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to execute workflow: ${error?.message ?? "Unknown error"}`);
+    }
+  })
+}
+
 export const useDeleteWorkflow = () => {
   const queryClient = useQueryClient();
 

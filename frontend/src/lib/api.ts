@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Credential } from "./utils";
 
-const BACKEND_URL = "https://backend.banerjeerik03.workers.dev/api";
+const BACKEND_URL = "http://127.0.0.1:8787/api";
 
 // === Types ===
 export interface NodeData {
@@ -57,6 +57,11 @@ export interface PaginatedWorkflowResponse {
   message: string;
 }
 
+export interface WorkflowExecutionResponse {
+  ok: boolean;
+  message: string;
+  execution:{}
+}
 // === Axios instance ===
 export const api = axios.create({
   baseURL: BACKEND_URL,
@@ -105,6 +110,11 @@ export const credsApi = {
 export const workflowApi = {
   createWorkflow: async () => {
     const response = await api.post<WorkflowResponse>("/workflows/create");
+    return response.data;
+  },
+
+  executeWorkflow: async ({ workflowId }: { workflowId: string }) => {
+    const response = await api.post<WorkflowExecutionResponse>("/workflows/execute-workflow", { workflowId });
     return response.data;
   },
 
