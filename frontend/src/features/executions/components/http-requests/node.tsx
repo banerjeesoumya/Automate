@@ -9,6 +9,7 @@ import { HTTPRequestFormValues, HTTPRequestTriggerDialog } from "./dialog";
 // import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
 type HTTPRequestNodeData = {
+    variableName?: string;
     endpoint: string;
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     body?: string;

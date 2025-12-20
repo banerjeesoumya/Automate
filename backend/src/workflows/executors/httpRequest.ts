@@ -3,6 +3,7 @@ import { NodeExecutor, WorkflowContext } from "../lib/types";
 import ky, {Options as KyOptions} from "ky"
 
 type HTTP_RequestData = {
+  variableName?: string;
   endpoint?: string;
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: string;
@@ -18,10 +19,19 @@ export const httpRequestExecutor: NodeExecutor<HTTP_RequestData> = async ({
   
   // @ts-ignore
   const result = await step.do(`http-request-${nodeId}`,async () => {
+
+    if (!data.variableName) {
+      throw new NonRetryableError(`HTTP Request node ${nodeId} is missing variableName`);
+    }
+
     if (!data.endpoint) {
       throw new NonRetryableError(`HTTP Request node ${nodeId} is missing endpoint`);
     }
-    
+
+    if (!data.method) {
+      throw new NonRetryableError(`HTTP Request node ${nodeId} is missing method`);
+    }
+
     const endpoint = data.endpoint;
     const method = data.method || "GET";
 
@@ -40,14 +50,17 @@ export const httpRequestExecutor: NodeExecutor<HTTP_RequestData> = async ({
     const contentType = response.headers.get("content-type");
     const responseData = contentType?.includes("application/json") ? await response.json() : await response.text(); 
 
+    const responsePayload = {
+        httpRequestResponse: {
+            status: response.status,
+            statusText: response.statusText,
+            data: responseData
+        }
+    }
 
     return {
       ...context,
-      httpRequestResponse: {
-        status: response.status,
-        statusText: response.statusText,
-        data: responseData,
-      }
+      [data.variableName]: responsePayload
     }
   });
 
