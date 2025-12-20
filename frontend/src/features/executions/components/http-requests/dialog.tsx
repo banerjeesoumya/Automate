@@ -85,7 +85,7 @@ export const HTTPRequestTriggerDialog = ({ open, onOpenChange, onSubmit, default
                                     </FormControl>
                                     <FormDescription>
                                         Use this name to reference the response data in subsequent nodes:{" "}
-                                        {`{{${watchVariableName}.httpResponse.data}}`}
+                                        {`{{${watchVariableName}.httpRequestResponse.data}}`}
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -128,7 +128,7 @@ export const HTTPRequestTriggerDialog = ({ open, onOpenChange, onSubmit, default
                                 <FormItem>
                                     <FormLabel>Endpoint URL</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://api.example.com/data/{{httpResponse.data.id}}" {...field} />
+                                        <Input placeholder="https://api.example.com/data/{{httpRequestResponse.data.id}}" {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         Static URL or use {"{{variable}}"} for simple values or {"{{json variable}}"} to stringify objects.
@@ -148,8 +148,9 @@ export const HTTPRequestTriggerDialog = ({ open, onOpenChange, onSubmit, default
                                             <Textarea
                                                 className="min-h-120[px] font-mono text-sm"
                                                 placeholder={
-                                                    '{\n "userId": "{{httpResponse.data.id}}", \n "name": "{{httpResponse.data.name}}" \n "items": "{{httpResponse.data.items}}", \n}'
-                                                } 
+                                                    '{\n "userId": "{{httpRequestResponse.data.id}}", \n "name": "{{httpRequestResponse.data.name}}" \n "items": "{{httpRequestResponse.data.items}}", \n}'
+                                                }
+                                                {...field} 
                                             />
                                         </FormControl>
                                         <FormDescription>
