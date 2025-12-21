@@ -14,7 +14,7 @@ import z from "zod";
 
 const formSchema = z.object({
     variableName: z.string().min(1, { message: "Variable name is required" }).regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, { message: "Variable name must start with a letter, underscore, or dollar sign and contain only alphanumeric characters, underscores, or dollar signs" }),
-    endpoint: z.url({message: "Invalid URL"}),
+    endpoint: z.string({message: "Invalid URL"}),
     method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
     body: z.string().optional(),
 })

@@ -15,4 +15,5 @@ type Params = {
   id: "execute-workflow";
   eventName: "workflows/execute.workflow";
   workflowId?: string;
+  initialData?: {};
 };

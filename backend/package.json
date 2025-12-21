@@ -5,7 +5,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-    "db:local": "docker run -d -e POSTGRES_PASSWORD=local -p 5432:5432 postgres"
+    "db:local": "docker run -d -e POSTGRES_PASSWORD=local -p 5432:5432 postgres",
+    "ngrok:dev": "ngrok http 8787"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",

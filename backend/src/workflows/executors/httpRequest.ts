@@ -35,7 +35,7 @@ function interpolate(
   return template.replace(/\{\{\s*([^}]+)\s*\}\}/g, (_, expr) => {
     const trimmed = expr.trim();
 
-    // ✅ Support: {{json path.to.value}}
+    // ✅ JSON directive
     if (trimmed.startsWith("json ")) {
       const path = trimmed.slice(5).trim();
       const value = getByPath(context, path);
@@ -47,16 +47,17 @@ function interpolate(
       return JSON.stringify(value);
     }
 
-    // ✅ Default: {{path.to.value}}
+    // ✅ Normal path resolution (NO encoding)
     const value = getByPath(context, trimmed);
 
     if (value === undefined || value === null) {
       throw new Error(`Unable to resolve template value: ${expr}`);
     }
 
-    return encodeURIComponent(String(value));
+    return String(value);
   });
 }
+
 
 
 type HTTP_RequestData = {

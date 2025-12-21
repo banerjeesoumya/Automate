@@ -9,6 +9,7 @@ import { authMiddleware } from "./utils/authMiddleware";
 import { credentialRouter } from "./routes/credentials";
 import { executionRouter } from "./routes/executions";
 import { MyWorkflow } from "./workflows/execute-workflow";
+import { webhookRouter } from "./routes/webhooks";
 
 export {
   MyWorkflow
@@ -26,6 +27,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
+      "https://b362f204e1fc.ngrok-free.app",
       "http://127.0.0.1:3000",
       "https://automate-xi-jet.vercel.app",
       "https://automate-git-featureauth-soumya-banerjees-projects.vercel.app",
@@ -78,5 +80,6 @@ app.route("/api/creds", credsRouter);
 app.route("/api/workflows", workflowRouter);
 app.route("/api/credentials", credentialRouter)
 app.route("/api/executions", executionRouter);
+app.route("/api/webhooks", webhookRouter);
 
 export default app;

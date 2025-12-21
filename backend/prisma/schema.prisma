@@ -135,6 +135,7 @@ enum NodeType {
   Initial
   Manual_Trigger
   HTTP_Request
+  GOOGLE_FORM_TRIGGER
   GEMINI
   ANTHROPIC
   OPEN_AI
