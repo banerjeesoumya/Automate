@@ -37,6 +37,12 @@ const executionNodes: NodeTypeOption[] = [
         label: "HTTP Request",
         description: "Make an HTTP request to an external API.",
         icon: GlobeIcon
+    }, 
+    {
+        type: NodeType.GEMINI,
+        label: "Gemini",
+        description: "Use Google's Gemini model to generate text.",
+        icon: "/gemini.svg"
     }
 ]
 

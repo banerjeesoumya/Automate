@@ -9,11 +9,15 @@
     "ngrok:dev": "ngrok http 8787"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.56",
+    "@ai-sdk/google": "^2.0.51",
+    "@ai-sdk/openai": "^2.0.88",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^6.17.1",
     "@prisma/extension-accelerate": "^2.0.2",
     "@types/toposort": "^2.0.7",
     "@xyflow/react": "^12.9.0",
+    "ai": "^5.0.116",
     "bcryptjs": "^3.0.2",
     "better-auth": "^1.3.27",
     "dotenv": "^17.2.3",

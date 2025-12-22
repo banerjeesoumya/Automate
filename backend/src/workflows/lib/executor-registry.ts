@@ -1,4 +1,5 @@
 import { NodeType } from "../../generated/prisma";
+import { geminiExecutor } from "../executors/gemini";
 import { googleFormTriggerExecutor } from "../executors/googleFormTrigger";
 import { httpRequestExecutor } from "../executors/httpRequest";
 import { manualTriggerExecutor } from "../executors/manualTrigger";
@@ -9,7 +10,7 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
     [NodeType.Initial]: manualTriggerExecutor,
     [NodeType.HTTP_Request]: httpRequestExecutor,
     [NodeType.GOOGLE_FORM_TRIGGER]: googleFormTriggerExecutor,
-    [NodeType.GEMINI]: manualTriggerExecutor,
+    [NodeType.GEMINI]: geminiExecutor,
     [NodeType.OPEN_AI]: manualTriggerExecutor,
     [NodeType.ANTHROPIC]: manualTriggerExecutor,
 }

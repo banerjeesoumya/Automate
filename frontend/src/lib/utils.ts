@@ -17,6 +17,9 @@ export enum NodeType {
   Manual_Trigger = "Manual_Trigger",
   HTTP_Request = "HTTP_Request",
   GOOGLE_FORM_TRIGGER = "GOOGLE_FORM_TRIGGER",
+  GEMINI = "GEMINI",
+  ANTHROPIC = "ANTHROPIC",
+  OPEN_AI = "OPEN_AI",
 }
 
 export enum CredentialType {

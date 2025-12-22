@@ -1,8 +1,7 @@
 import axios from "axios";
 import { Credential } from "./utils";
 
-export const BACKEND_URL = "https://backend.banerjeerik03.workers.dev/api";
-// https://backend.banerjeerik03.workers.dev  https://616d16a35d15.ngrok-free.app/api
+export const BACKEND_URL = "http://127.0.0.1:8787/api";
 
 // === Types ===
 export interface NodeData {
