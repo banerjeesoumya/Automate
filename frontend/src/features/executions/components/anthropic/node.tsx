@@ -5,31 +5,31 @@ import { memo, useState } from "react";
 
 import { GlobeIcon } from "lucide-react";
 import { BaseExecutionNode } from "../base-execution-node";
-import { GeminiFormValues, GeminiTriggerDialog } from "./dialog";
+import { AnthropicFormValues, AnthropicTriggerDialog } from "./dialog";
 // import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
-type GeminiNodeData = {
+type AnthropicNodeData = {
     variableName?: string;
     systemPrompt?: string;
     userPrompt?: string;
 }
 
-type GeminiNodeType = Node<GeminiNodeData>;
+type AnthropicNodeType = Node<AnthropicNodeData>;
 
-export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
+export const AnthropicNode = memo((props: NodeProps<AnthropicNodeType>) => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const { setNodes } = useReactFlow();
 
     const nodeData = props.data;
     const description = nodeData?.userPrompt
-        ? `gemini-2.5-flash-lite ${nodeData.userPrompt.slice(0, 30)}...`
+        ? `claude-sonnet-4-5 ${nodeData.userPrompt.slice(0, 30)}...`
         : "Not Configured";
 
     const nodeStatus = "initial";
 
     const handleSettings = () => setDialogOpen(true);
 
-    const handleSubmit = (values: GeminiFormValues) => {
+    const handleSubmit = (values: AnthropicFormValues) => {
         setNodes((nodes) => nodes.map((node) => {
             if (node.id === props.id) {
                 return {
@@ -46,7 +46,7 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
 
     return (
         <>
-            <GeminiTriggerDialog 
+            <AnthropicTriggerDialog 
                 open={dialogOpen} 
                 onOpenChange={setDialogOpen}
                 onSubmit={handleSubmit}
@@ -55,8 +55,8 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
             <BaseExecutionNode
                 {...props}
                 id={props.id}
-                icon="/gemini.svg"
-                name="Gemini"
+                icon="/anthropic.svg"
+                name="Anthropic"
                 status={nodeStatus}
                 description={description}
                 onDoubleClick={handleSettings}
@@ -66,4 +66,4 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
     )
 })
 
-GeminiNode.displayName = "GeminiNode";
+AnthropicNode.displayName = "AnthropicNode";

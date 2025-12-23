@@ -1,6 +1,6 @@
 import { NonRetryableError } from "cloudflare:workflows";
 import { NodeExecutor, WorkflowContext } from "../lib/types";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 
 /**
@@ -60,25 +60,25 @@ function interpolate(
 }
 
 
-type GeminiData = {
+type OpenAIData = {
   variableName?: string;
   model?: string;
   systemPrompt?: string;
   userPrompt?: string;
 };
 
-export const geminiExecutor: NodeExecutor<GeminiData> = async ({
+export const openAIExecutor: NodeExecutor<OpenAIData> = async ({
   data,
   nodeId,
   context,
   step,
 }) => {
   if (!data.variableName) {
-    throw new NonRetryableError(`Gemini node ${nodeId} is missing variableName`);
+    throw new NonRetryableError(`OpenAI node ${nodeId} is missing variableName`);
   }
 
   if (!data.userPrompt) {
-    throw new NonRetryableError(`Gemini node ${nodeId} is missing userPrompt`);
+    throw new NonRetryableError(`OpenAI node ${nodeId} is missing userPrompt`);
   }
 
   const variableName = data.variableName; // ✅ FIX #2
@@ -98,14 +98,14 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
     );
   }
 
-  const google = createGoogleGenerativeAI({
-    apiKey: "${GOOGLE_API_KEY}",
-  });
+  const openai = createOpenAI({
+    apiKey: "${OPENAI_API_KEY}",
+  })
 
   // @ts-ignore
-  const result = await step.do(`gemini-generate-text-${nodeId}`, async () => {
+  const result = await step.do(`openai-generate-text-${nodeId}`, async () => {
     const { text } = await generateText({
-      model: google("gemini-2.5-flash-lite"),
+      model: openai("gpt-4"),
       system: systemPrompt,
       prompt: userPrompt,
     });
