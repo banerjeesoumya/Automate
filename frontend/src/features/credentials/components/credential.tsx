@@ -36,11 +36,11 @@ const credentialTypeOptions = [
         label: "OpenAI",
         logo: "/openai.svg",
     },
-    // {
-    //     value: CredentialType.GEMINI,
-    //     label: "Gemini",
-    //     logo: "/gemini.svg",
-    // }
+    {
+        value: CredentialType.ANTHROPIC,
+        label: "Anthropic",
+        logo: "/anthropic.svg",
+    }
 ]
 
 interface CredentialFormProps {

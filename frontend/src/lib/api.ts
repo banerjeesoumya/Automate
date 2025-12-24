@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Credential } from "./utils";
+import { Credential, CredentialType } from "./utils";
 
 export const BACKEND_URL = "http://127.0.0.1:8787/api";
 
@@ -227,10 +227,8 @@ export const credentialApi = {
     return response.data;
   },
 
-  getCredentialsByType: async (type: string) => {
-    const response = await api.get<GetCredentialByType>("/credentials/type", {
-      params: { type },
-    });
+  getCredentialsByType: async (params: { type: CredentialType }) => {
+    const response = await api.get<GetCredentialByType>(`/credentials/type/${params.type}`);
     return response.data;
   }
 }

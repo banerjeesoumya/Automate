@@ -32,7 +32,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
           id: workflowId
         }, include: {
           nodes: true,
-          connections: true
+          connections: true,
         }
       })
 
@@ -49,7 +49,8 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
         data: node.data as Record<string, unknown>,
         nodeId: node.id,
         context,
-        step
+        step,
+        env: this.env
       })
     }
 

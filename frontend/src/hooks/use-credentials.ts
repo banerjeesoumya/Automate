@@ -138,6 +138,6 @@ export const useSuspenseCredentials = () => {
 export const useSuspenseCredentialTypes = (type: CredentialType) => {
     return useSuspenseQuery({
         queryKey: ["credentialTypes", type],
-        queryFn: () => credentialApi.getCredentialsByType(type),
+        queryFn: () => credentialApi.getCredentialsByType({ type }),
     });
 }

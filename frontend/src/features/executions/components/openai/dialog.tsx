@@ -6,7 +6,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useSuspenseCredentialTypes } from "@/hooks/use-credentials";
+import { CredentialType } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -14,6 +17,7 @@ import z from "zod";
 
 const formSchema = z.object({
     variableName: z.string().min(1, { message: "Variable name is required" }).regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, { message: "Variable name must start with a letter, underscore, or dollar sign and contain only alphanumeric characters, underscores, or dollar signs" }),
+    credentialId: z.string().min(1, { message: "Credential is required" }),
     systemPrompt: z.string().optional(),
     userPrompt: z.string().min(1, { message: "User prompt is required" })
 })
@@ -29,6 +33,11 @@ interface OpenAITriggerDialogProps {
 
 export const OpenAITriggerDialog = ({ open, onOpenChange, onSubmit, defaultValues = {} }: OpenAITriggerDialogProps) => {
 
+    const {
+            data: items,
+            isLoading: credentialsLoading,
+        } = useSuspenseCredentialTypes(CredentialType.OPEN_AI);
+    
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -71,6 +80,40 @@ export const OpenAITriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
                         onSubmit={form.handleSubmit(handleSubmit)}
                         className="space-y-8 mt-4" 
                     >
+                        <FormField
+                                control={form.control}
+                                name = "credentialId"
+                                render = {({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>OpenAI Credential</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={
+                                            credentialsLoading || !items.ok
+                                        }>
+                                            <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Select a credential" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {items.credentials.map((credential) => (
+                                                    <SelectItem key={credential.id} value={credential.id}>
+                                                        <div className="flex items-center gap-2">
+                                                            <Image 
+                                                                src="/openai.svg"
+                                                                alt= "OpenAI"
+                                                                width={16}
+                                                                height={16} 
+                                                            />
+                                                            {credential.name}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         <FormField
                             control={form.control}
                             name = "variableName"

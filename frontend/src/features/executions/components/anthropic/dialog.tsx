@@ -6,7 +6,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useSuspenseCredentialTypes } from "@/hooks/use-credentials";
+import { CredentialType } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -14,6 +17,7 @@ import z from "zod";
 
 const formSchema = z.object({
     variableName: z.string().min(1, { message: "Variable name is required" }).regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, { message: "Variable name must start with a letter, underscore, or dollar sign and contain only alphanumeric characters, underscores, or dollar signs" }),
+    credentialId: z.string().min(1, { message: "Credential is required" }),
     systemPrompt: z.string().optional(),
     userPrompt: z.string().min(1, { message: "User prompt is required" })
 })
@@ -29,10 +33,17 @@ interface AnthropicTriggerDialogProps {
 
 export const AnthropicTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValues = {} }: AnthropicTriggerDialogProps) => {
 
+    const {
+            data: items,
+            isLoading: credentialsLoading,
+        } = useSuspenseCredentialTypes(CredentialType.ANTHROPIC);
+    
+    
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             variableName: defaultValues.variableName || "",
+            credentialId: defaultValues.credentialId || "",
             systemPrompt: defaultValues.systemPrompt || "",
             userPrompt: defaultValues.userPrompt || "",
         },
@@ -42,6 +53,7 @@ export const AnthropicTriggerDialog = ({ open, onOpenChange, onSubmit, defaultVa
         if (open) {
             form.reset({
                 variableName: defaultValues.variableName || "",
+                credentialId: defaultValues.credentialId || "",
                 systemPrompt: defaultValues.systemPrompt || "",
                 userPrompt: defaultValues.userPrompt || "",
             })
@@ -71,6 +83,40 @@ export const AnthropicTriggerDialog = ({ open, onOpenChange, onSubmit, defaultVa
                         onSubmit={form.handleSubmit(handleSubmit)}
                         className="space-y-8 mt-4" 
                     >
+                        <FormField
+                            control={form.control}
+                            name = "credentialId"
+                            render = {({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Gemini Credential</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={
+                                        credentialsLoading || !items.ok
+                                    }>
+                                        <FormControl>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select a credential" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {items.credentials.map((credential) => (
+                                                <SelectItem key={credential.id} value={credential.id}>
+                                                    <div className="flex items-center gap-2">
+                                                        <Image 
+                                                            src="/anthropic.svg"
+                                                            alt= "Anthropic"
+                                                            width={16}
+                                                            height={16} 
+                                                        />
+                                                        {credential.name}
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name = "variableName"

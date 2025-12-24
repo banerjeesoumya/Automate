@@ -2,6 +2,7 @@ import { NonRetryableError } from "cloudflare:workflows";
 import { NodeExecutor, WorkflowContext } from "../lib/types";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
+import { PrismaClient } from "../../generated/prisma/edge";
 
 /**
  * Resolve a value from an object using dot-notation
@@ -59,9 +60,9 @@ function interpolate(
   });
 }
 
-
 type GeminiData = {
   variableName?: string;
+  credentialId?: string;
   model?: string;
   systemPrompt?: string;
   userPrompt?: string;
@@ -72,6 +73,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
   nodeId,
   context,
   step,
+  env
 }) => {
   if (!data.variableName) {
     throw new NonRetryableError(`Gemini node ${nodeId} is missing variableName`);
@@ -82,6 +84,20 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
   }
 
   const variableName = data.variableName; // ✅ FIX #2
+
+  const prisma = new PrismaClient({
+    datasourceUrl: env.CONNECTION_POOL_URL || "",
+  })
+
+  const credential = await prisma.credential.findUnique({
+    where: {
+      id: data.credentialId
+    }
+  })
+
+  if (!credential) {
+    throw new NonRetryableError('Gemini credential not found');
+  }
 
   let systemPrompt: string;
   let userPrompt: string;
@@ -99,7 +115,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
   }
 
   const google = createGoogleGenerativeAI({
-    apiKey: "${GOOGLE_API_KEY}",
+    apiKey: credential.value
   });
 
   // @ts-ignore
