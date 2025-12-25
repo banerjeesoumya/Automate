@@ -17,34 +17,30 @@ import z from "zod";
 
 const formSchema = z.object({
     variableName: z.string().min(1, { message: "Variable name is required" }).regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, { message: "Variable name must start with a letter, underscore, or dollar sign and contain only alphanumeric characters, underscores, or dollar signs" }),
-    credentialId: z.string().min(1, { message: "Credential is required" }),
-    systemPrompt: z.string().optional(),
-    userPrompt: z.string().min(1, { message: "User prompt is required" })
+    webhookUrl: z.string().min(1, { message: "Webhook URL must be a valid URL" }),
+    username: z.string().optional(),
+    content: z.string().min(1, { message: "Content is required" }).max(2000, { message: "Discord messages cannot exceed 2000 characters" }),
 })
 
-export type GeminiFormValues = z.infer<typeof formSchema>;
+export type DiscordFormValues = z.infer<typeof formSchema>;
 
-interface GeminiTriggerDialogProps {
+interface DiscordTriggerDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSubmit: (values: z.infer<typeof formSchema>) => void;
-    defaultValues?: Partial<GeminiFormValues>
+    defaultValues?: Partial<DiscordFormValues>
 }
 
-export const GeminiTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValues = {} }: GeminiTriggerDialogProps) => {
+export const DiscordTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValues = {} }: DiscordTriggerDialogProps) => {
 
-    const {
-        data: items,
-        isLoading: credentialsLoading,
-    } = useSuspenseCredentialTypes(CredentialType.GEMINI);
     
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             variableName: defaultValues.variableName || "",
-            credentialId: defaultValues.credentialId || "",
-            systemPrompt: defaultValues.systemPrompt || "",
-            userPrompt: defaultValues.userPrompt || "",
+            webhookUrl: defaultValues.webhookUrl || "",
+            username: defaultValues.username || "",
+            content: defaultValues.content || "",
         },
     })
 
@@ -52,9 +48,9 @@ export const GeminiTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
         if (open) {
             form.reset({
                 variableName: defaultValues.variableName || "",
-                credentialId: defaultValues.credentialId || "",
-                systemPrompt: defaultValues.systemPrompt || "",
-                userPrompt: defaultValues.userPrompt || "",
+                webhookUrl: defaultValues.webhookUrl || "",
+                username: defaultValues.username || "",
+                content: defaultValues.content || "",
             })
         }
     }, [open, defaultValues, form])
@@ -72,9 +68,9 @@ export const GeminiTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Gemini Node Configuration</DialogTitle>
+                    <DialogTitle>Discord Node Configuration</DialogTitle>
                     <DialogDescription>
-                        Configure the Gemini node settings here.Add API Key and prompts as needed
+                        Configure the Discord node settings here. Add webhook URL, username, and message content as needed.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -82,40 +78,6 @@ export const GeminiTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
                         onSubmit={form.handleSubmit(handleSubmit)}
                         className="space-y-8 mt-4" 
                     >
-                        <FormField
-                            control={form.control}
-                            name = "credentialId"
-                            render = {({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Gemini Credential</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={
-                                        credentialsLoading || !items.ok
-                                    }>
-                                        <FormControl>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Select a credential" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {items.credentials.map((credential) => (
-                                                <SelectItem key={credential.id} value={credential.id}>
-                                                    <div className="flex items-center gap-2">
-                                                        <Image 
-                                                            src="/gemini.svg"
-                                                            alt= "Gemini"
-                                                            width={16}
-                                                            height={16} 
-                                                        />
-                                                        {credential.name}
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <FormField
                             control={form.control}
                             name = "variableName"
@@ -127,7 +89,7 @@ export const GeminiTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
                                     </FormControl>
                                     <FormDescription>
                                         Use this name to reference the response data in subsequent nodes:{" "}
-                                        {`{{${watchVariableName}.aiResponse}}`}
+                                        {`{{${watchVariableName}.messageContent}}`}
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -135,19 +97,15 @@ export const GeminiTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
                         />
                         <FormField
                             control={form.control}
-                            name = "systemPrompt"
+                            name = "webhookUrl"
                             render = {({ field }) => (
                                 <FormItem>
-                                    <FormLabel>System Prompt (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            className="min-h-120[px] font-mono text-sm"
-                                            placeholder="You are a helpful assistant...."
-                                            {...field} 
-                                        />
-                                    </FormControl>
+                                    <FormLabel>Webhook URL</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="https://discord.com/api/webhooks/..." {...field} />
+                                        </FormControl>
                                     <FormDescription>
-                                        The system prompt to guide the behavior of the model. Use {"{{variables}}"} for simple values or {"{{json variable}}"} to stringify objects.
+                                        The Discord webhook URL to send the message to. Get this from your Discord: Channel Settings &rarr; Integrations &rarr; Webhooks.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -155,19 +113,35 @@ export const GeminiTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
                         />
                         <FormField
                             control={form.control}
-                            name = "userPrompt"
+                            name = "content"
                             render = {({ field }) => (
                                 <FormItem>
-                                    <FormLabel>User Prompt</FormLabel>
+                                    <FormLabel>Message Content</FormLabel>
                                     <FormControl>
                                         <Textarea
                                             className="min-h-120[px] font-mono text-sm"
-                                            placeholder="Summarize the following text: {{json httpResponse.data}}"
+                                            placeholder="Summary: {{myGemini.text}}"
                                             {...field} 
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        The prompt to send to the AI model. Use {"{{variables}}"} for simple values or {"{{json variable}}"} to stringify objects.
+                                        The content of the message to send to the Discord channel. Use {"{{variables}}"} for simple values or {"{{json variable}}"} to stringify objects.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name = "username"
+                            render = {({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Bot Username (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Workflow Bot" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        The username to display for the bot in the Discord channel.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>

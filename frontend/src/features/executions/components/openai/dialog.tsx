@@ -125,7 +125,7 @@ export const OpenAITriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
                                     </FormControl>
                                     <FormDescription>
                                         Use this name to reference the response data in subsequent nodes:{" "}
-                                        {`{{${watchVariableName}.text}}`}
+                                        {`{{${watchVariableName}.aiResponse}}`}
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>

@@ -47,6 +47,9 @@ importers:
       hono:
         specifier: ^4.7.4
         version: 4.11.1
+      html-entities:
+        specifier: ^2.6.0
+        version: 2.6.0
       ky:
         specifier: ^1.14.1
         version: 1.14.1
@@ -973,6 +976,9 @@ packages:
     resolution: {integrity: sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg==}
     engines: {node: '>=16.9.0'}
 
+  html-entities@2.6.0:
+    resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
+
   is-arrayish@0.3.4:
     resolution: {integrity: sha512-m6UrgzFVUYawGBh1dUsWR5M2Clqic9RVXC/9f8ceNlv2IcO9j9J/z8UoCLPqtsPBFNzEpfR3xftohbfqDx8EQA==}
 
@@ -1881,6 +1887,8 @@ snapshots:
   glob-to-regexp@0.4.1: {}
 
   hono@4.11.1: {}
+
+  html-entities@2.6.0: {}
 
   is-arrayish@0.3.4: {}
 

@@ -20,12 +20,16 @@ export enum NodeType {
   GEMINI = "GEMINI",
   ANTHROPIC = "ANTHROPIC",
   OPEN_AI = "OPEN_AI",
+  DISCORD = "DISCORD",
+  SLACK = "SLACK",
 }
 
 export enum CredentialType {
   GEMINI = "GEMINI",
   OPEN_AI = "OPEN_AI",
   ANTHROPIC = "ANTHROPIC",
+  DISCORD = "DISCORD",
+  SLACK = "SLACK",
 }
 
 export interface Credential {

@@ -128,7 +128,7 @@ export const AnthropicTriggerDialog = ({ open, onOpenChange, onSubmit, defaultVa
                                     </FormControl>
                                     <FormDescription>
                                         Use this name to reference the response data in subsequent nodes:{" "}
-                                        {`{{${watchVariableName}.text}}`}
+                                        {`{{${watchVariableName}.aiResponse}}`}
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
