@@ -75,52 +75,56 @@ export const slackExecutor: NodeExecutor<SlackData> = async ({
   step,
   env
 }) => {
-  if (!data.variableName) {
-    throw new NonRetryableError(`Slack node ${nodeId} is missing variableName`);
-  }
-
-  if (!data.content) {
-    throw new NonRetryableError(`Slack node ${nodeId} is missing content`);
-  }
-
-  const variableName = data.variableName; // ✅ FIX #2
-
-  let rawContent: string;
-  let content: string;
-
-  try {
-    rawContent = interpolate(
-      data.content || "",
-      context
-    );
-  } catch (err) {
-    throw new NonRetryableError(
-      `Template error in node ${nodeId}: ${(err as Error).message}`
-    );
-  }
-
-  content = decode(rawContent);
-
   // @ts-ignore
   const result = await step.do(`slack-generate-text-${nodeId}`, async () => {
-
-    if (!data.webhookUrl) {
-      throw new NonRetryableError(`Slack node ${nodeId} is missing webhookUrl`);
-    }
-    
-    await ky.post(data.webhookUrl, {
-      json: {
-        content: content.slice(0, 2000), // Slack message limit
+    try {
+      if (!data.variableName) {
+        throw new NonRetryableError(`Slack node ${nodeId} is missing variableName`);
       }
-    });
-    
 
-    return {
-      ...context,
-      [variableName]: {
-        messageContent: content.slice(0, 2000),
-      },
-    };
+      if (!data.content) {
+        throw new NonRetryableError(`Slack node ${nodeId} is missing content`);
+      }
+
+      const variableName = data.variableName;
+
+      let rawContent: string;
+      let content: string;
+
+      try {
+        rawContent = interpolate(
+          data.content || "",
+          context
+        );
+      } catch (err) {
+        throw new NonRetryableError(
+          `Template error in node ${nodeId}: ${(err as Error).message}`
+        );
+      }
+
+      content = decode(rawContent);
+      if (!data.webhookUrl) {
+        throw new NonRetryableError(`Slack node ${nodeId} is missing webhookUrl`);
+      }
+      
+      await ky.post(data.webhookUrl, {
+        json: {
+          content: content.slice(0, 2000), // Slack message limit
+        }
+      });
+      
+
+      return {
+        ...context,
+        [variableName]: {
+          messageContent: content.slice(0, 2000),
+        },
+      };
+    } catch (err) {
+      throw new NonRetryableError(
+        `Slack node failed: ${(err as Error).message}`
+      );
+    }
   });
 
   return result as WorkflowContext;

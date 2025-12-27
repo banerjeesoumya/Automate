@@ -75,70 +75,77 @@ export const httpRequestExecutor: NodeExecutor<HTTP_RequestData> = async ({
 }) => {
   // @ts-ignore
   const result = await step.do(`http-request-${nodeId}`, async () => {
-    if (!data.variableName) {
-      throw new NonRetryableError(
-        `HTTP Request node ${nodeId} is missing variableName`
-      );
-    }
-
-    if (!data.endpoint) {
-      throw new NonRetryableError(
-        `HTTP Request node ${nodeId} is missing endpoint`
-      );
-    }
-
-    if (!data.method) {
-      throw new NonRetryableError(
-        `HTTP Request node ${nodeId} is missing method`
-      );
-    }
-
-    let endpoint: string;
-    let body: string | undefined;
-
     try {
-      endpoint = interpolate(data.endpoint, context);
-      console.log("Interpolated Endpoint: ", endpoint);
-      body = data.body ? interpolate(data.body, context) : undefined;
-      console.log("Interpolated Body: ", body);
+      if (!data.variableName) {
+        throw new NonRetryableError(
+          `HTTP Request node ${nodeId} is missing variableName`
+        );
+      }
+
+      if (!data.endpoint) {
+        throw new NonRetryableError(
+          `HTTP Request node ${nodeId} is missing endpoint`
+        );
+      }
+
+      if (!data.method) {
+        throw new NonRetryableError(
+          `HTTP Request node ${nodeId} is missing method`
+        );
+      }
+
+      let endpoint: string;
+      let body: string | undefined;
+
+      try {
+        endpoint = interpolate(data.endpoint, context);
+        console.log("Interpolated Endpoint: ", endpoint);
+        body = data.body ? interpolate(data.body, context) : undefined;
+        console.log("Interpolated Body: ", body);
+      } catch (err) {
+        throw new NonRetryableError(
+          `Template error in node ${nodeId}: ${(err as Error).message}`
+        );
+      }
+
+      const options: KyOptions = {
+        method: data.method,
+      };
+
+      if (["POST", "PUT", "PATCH"].includes(data.method)) {
+        if (body) {
+          // validate JSON
+          JSON.parse(body);
+          options.body = body;
+          options.headers = {
+            "Content-Type": "application/json",
+          };
+        }
+      }
+
+      const response = await ky(endpoint, options);
+      const contentType = response.headers.get("content-type");
+
+      const responseData = contentType?.includes("application/json")
+        ? await response.json()
+        : await response.text();
+
+      return {
+        ...context,
+        [data.variableName]: {
+          httpRequestResponse: {
+            status: response.status,
+            statusText: response.statusText,
+            data: responseData,
+          },
+        },
+      };
     } catch (err) {
+      // TODO: will add piece of code that would avoid double-wrapping NonRetryableError in the future
       throw new NonRetryableError(
-        `Template error in node ${nodeId}: ${(err as Error).message}`
+        `HTTP Request node failed: ${(err as Error).message}`
       );
     }
-
-    const options: KyOptions = {
-      method: data.method,
-    };
-
-    if (["POST", "PUT", "PATCH"].includes(data.method)) {
-      if (body) {
-        // validate JSON
-        JSON.parse(body);
-        options.body = body;
-        options.headers = {
-          "Content-Type": "application/json",
-        };
-      }
-    }
-
-    const response = await ky(endpoint, options);
-    const contentType = response.headers.get("content-type");
-
-    const responseData = contentType?.includes("application/json")
-      ? await response.json()
-      : await response.text();
-
-    return {
-      ...context,
-      [data.variableName]: {
-        httpRequestResponse: {
-          status: response.status,
-          statusText: response.statusText,
-          data: responseData,
-        },
-      },
-    };
   });
 
   // collapse Cloudflare boundary

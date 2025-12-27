@@ -120,18 +120,22 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
 
   // @ts-ignore
   const result = await step.do(`gemini-generate-text-${nodeId}`, async () => {
-    const { text } = await generateText({
-      model: google("gemini-2.5-flash-lite"),
-      system: systemPrompt,
-      prompt: userPrompt,
-    });
+    try {
+      const { text } = await generateText({
+        model: google("gemini-2.5-flash-lite"),
+        system: systemPrompt,
+        prompt: userPrompt,
+      });
 
-    return {
-      ...context,
-      [variableName]: {
-        aiResponse: text,
-      },
-    };
+      return {
+        ...context,
+        [variableName]: {
+          aiResponse: text,
+        },
+      };
+    } catch (error) {
+      throw new NonRetryableError(`Gemini node failed: ${(error as Error).message}`);
+    }
   });
 
   return result as WorkflowContext;

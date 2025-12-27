@@ -2,11 +2,12 @@ import { Hono } from 'hono';
 import { Env } from '../types/env';
 import { generateSlug } from 'random-word-slugs';
 import { authMiddleware } from '../utils/authMiddleware';
-import { NodeType, PrismaClient } from '../generated/prisma/edge';
+import { ExecutionStatus, NodeType, PrismaClient } from '../generated/prisma/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import z from 'zod';
 import { PAGINATION } from '../utils/constants';
-import type { Node } from '@xyflow/react';  
+import type { Node } from '@xyflow/react';
+import { createId } from '@paralleldrive/cuid2';
 
 export const workflowRouter = new Hono<{
     Bindings: Env,
@@ -77,18 +78,22 @@ workflowRouter.post('/execute-workflow', authMiddleware(), async (c) => {
             where: {
                 id: workflowId,
                 userId: userId,
+            },
+            include: {
+                user: true,
             }
         })
         // Here you would add the logic to actually execute the workflow.
         const execution = await c.env.MY_WORKFLOW.create({
             params: {
-                email: userId,
+                email: workflow.user.email,
                 id: "execute-workflow",
                 eventName: "workflows/execute.workflow",
                 workflowId: workflowId, 
-            }
+            },
+            id: `workflow-exec-${workflowId}-${Date.now()}`,
         })
-
+        
         return c.json({
             ok: true,
             message: 'Workflow execution started',

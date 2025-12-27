@@ -122,18 +122,22 @@ export const anthropicExecutor: NodeExecutor<AnthropicData> = async ({
 
   // @ts-ignore
   const result = await step.do(`anthropic-generate-text-${nodeId}`, async () => {
-    const { text } = await generateText({
-      model: anthropic("claude-sonnet-4-5"),
-      system: systemPrompt,
-      prompt: userPrompt,
-    });
+    try {
+      const { text } = await generateText({
+        model: anthropic("claude-sonnet-4-5"),
+        system: systemPrompt,
+        prompt: userPrompt,
+      });
 
-    return {
-      ...context,
-      [variableName]: {
-        aiResponse: text,
-      },
-    };
+      return {
+        ...context,
+        [variableName]: {
+          aiResponse: text,
+        },
+      };
+    } catch (error) {
+      throw new NonRetryableError(`Anthropic node failed: ${(error as Error).message}`);
+    }
   });
 
   return result as WorkflowContext;

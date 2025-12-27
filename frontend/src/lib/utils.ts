@@ -28,8 +28,6 @@ export enum CredentialType {
   GEMINI = "GEMINI",
   OPEN_AI = "OPEN_AI",
   ANTHROPIC = "ANTHROPIC",
-  DISCORD = "DISCORD",
-  SLACK = "SLACK",
 }
 
 export interface Credential {
