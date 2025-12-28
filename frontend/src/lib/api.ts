@@ -1,7 +1,7 @@
 import axios from "axios";
-import { Credential } from "./utils";
+import { Credential, CredentialType, Execution } from "./utils";
 
-const BACKEND_URL = "https://backend.banerjeerik03.workers.dev/api";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // === Types ===
 export interface NodeData {
@@ -57,6 +57,11 @@ export interface PaginatedWorkflowResponse {
   message: string;
 }
 
+export interface WorkflowExecutionResponse {
+  ok: boolean;
+  message: string;
+  execution:{}
+}
 // === Axios instance ===
 export const api = axios.create({
   baseURL: BACKEND_URL,
@@ -105,6 +110,11 @@ export const credsApi = {
 export const workflowApi = {
   createWorkflow: async () => {
     const response = await api.post<WorkflowResponse>("/workflows/create");
+    return response.data;
+  },
+
+  executeWorkflow: async ({ workflowId }: { workflowId: string }) => {
+    const response = await api.post<WorkflowExecutionResponse>("/workflows/execute-workflow", { workflowId });
     return response.data;
   },
 
@@ -217,15 +227,38 @@ export const credentialApi = {
     return response.data;
   },
 
-  getCredentialsByType: async (type: string) => {
-    const response = await api.get<GetCredentialByType>("/credentials/type", {
-      params: { type },
-    });
+  getCredentialsByType: async (params: { type: CredentialType }) => {
+    const response = await api.get<GetCredentialByType>(`/credentials/type/${params.type}`);
     return response.data;
   }
 }
 
-// getManyCredentials: async (params: { page: number; pageSize: number; search?: string }) => {
-//     const response = await api.get("/credentials/all", { params });
-//     return response.data;
-//   },
+export interface GetOneExecutionResponse {
+  ok: boolean;
+  execution: Execution;
+  message: string;
+} 
+
+export interface PaginatedExecutionResponse {
+  ok: boolean;
+  items: Execution[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  message: string;
+}
+
+export const executionApi = {
+  getOneExecution: async (params: {id: string}) => {
+    const response = await api.get<GetOneExecutionResponse>(`/executions/get/${params.id}`);
+    return response.data;
+  },
+
+  getManyExecutions: async (params: { page: number; pageSize: number; search?: string }) => {
+    const response = await api.get<PaginatedExecutionResponse>("/executions/all", { params });
+    return response.data;
+  },
+}

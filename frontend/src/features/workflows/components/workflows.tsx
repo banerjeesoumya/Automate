@@ -1,7 +1,7 @@
 import { EmptyView, EntityContainer, EntityHeader, EntityItem, EntityList, EntityPagination, EntitySearch, LoadingView } from "@/components/entity-components";
 import { useEntitySearch } from "@/hooks/use-entity-search";
-import { useCreateWorkflow, useDeleteWorkflow, useSuspenseWorkflows } from "@/hooks/use-workflows"
-import { useWorkflowsParams } from "@/hooks/use-workflows-params";
+import { useCreateWorkflow, useDeleteWorkflow, useSuspenseWorkflows } from "@/hooks/workflows/use-workflows";
+import { useWorkflowsParams } from "@/hooks/workflows/use-workflows-params";
 import { formatDistanceToNow } from "date-fns";
 import { WorkflowIcon } from "lucide-react";
 import { useRouter } from "next/navigation";

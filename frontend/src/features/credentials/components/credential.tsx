@@ -2,7 +2,7 @@
 
 
 import { useRouter } from "next/navigation";
-import { useCreateCredential, useSuspenseCredential, useUpdateCredential } from "@/hooks/use-credentials";
+import { useCreateCredential, useSuspenseCredential, useUpdateCredential } from "@/hooks/credentials/use-credentials";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -36,11 +36,11 @@ const credentialTypeOptions = [
         label: "OpenAI",
         logo: "/openai.svg",
     },
-    // {
-    //     value: CredentialType.GEMINI,
-    //     label: "Gemini",
-    //     logo: "/gemini.svg",
-    // }
+    {
+        value: CredentialType.ANTHROPIC,
+        label: "Anthropic",
+        logo: "/anthropic.svg",
+    }
 ]
 
 interface CredentialFormProps {

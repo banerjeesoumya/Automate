@@ -4,7 +4,7 @@ import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, Breadcr
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { useSuspenseWorkflow, useUpdateWorkflowName, useUpdateWorkflowNodesAndEdges } from "@/hooks/use-workflows"
+import { useSuspenseWorkflow, useUpdateWorkflowName, useUpdateWorkflowNodesAndEdges } from "@/hooks/workflows/use-workflows"
 import { useAtomValue } from "jotai"
 import { SaveIcon } from "lucide-react"
 import Link from "next/link"

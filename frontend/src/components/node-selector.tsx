@@ -22,6 +22,12 @@ const triggerNodes: NodeTypeOption[] = [
         label: "Manual Trigger",
         description: "Start the workflow manually. Good for getting started.",
         icon: MousePointerIcon
+    }, 
+    {
+        type: NodeType.GOOGLE_FORM_TRIGGER,
+        label: "Google Form Trigger",
+        description: "Trigger the workflow when a Google Form is submitted.",
+        icon: "/googleform.svg"
     }
 ]
 
@@ -31,6 +37,36 @@ const executionNodes: NodeTypeOption[] = [
         label: "HTTP Request",
         description: "Make an HTTP request to an external API.",
         icon: GlobeIcon
+    }, 
+    {
+        type: NodeType.GEMINI,
+        label: "Gemini",
+        description: "Use Google's Gemini model to generate text.",
+        icon: "/gemini.svg"
+    },
+    {
+        type: NodeType.OPEN_AI,
+        label: "OpenAI",
+        description: "Use OpenAI's models to generate text.",
+        icon: "/openai.svg"
+    },
+    {
+        type: NodeType.ANTHROPIC,
+        label: "Anthropic",
+        description: "Use Anthropic's Claude model to generate text.",
+        icon: "/anthropic.svg"
+    },
+    {
+        type: NodeType.DISCORD,
+        label: "Discord",
+        description: "Use Discord to send messages.",
+        icon: "/discord.svg"
+    },
+    {
+        type: NodeType.SLACK,
+        label: "Slack",
+        description: "Use Slack to send messages.",
+        icon: "/slack.svg"
     }
 ]
 

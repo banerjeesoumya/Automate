@@ -1,7 +1,7 @@
 "use client";
 
 import { LoadingView } from "@/components/entity-components";
-import { useSuspenseWorkflow } from "@/hooks/use-workflows";
+import { useSuspenseWorkflow } from "@/hooks/workflows/use-workflows";
 import {
   ReactFlow,
   applyNodeChanges,
@@ -19,11 +19,13 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { nodeComponents } from "@/lib/node-components";
 import { AddNodeButton } from "./add-node-button";
 import { useSetAtom } from "jotai";
 import { editorAtom } from "../store/atoms";
+import { NodeType } from "@/lib/utils";
+import { ExecuteWorkflowButton } from "./execute-workflow-button";
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
   useAuthRedirect({ requireAuth: true });
@@ -45,6 +47,10 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         (params: Connection) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
         [],
     );
+
+    const hasManualTrigger = useMemo(() => {
+        return nodes.some((node) => node.type === NodeType.Manual_Trigger)
+    }, [nodes]);
 
   return (
     <div className="w-full h-screen">
@@ -69,6 +75,11 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         <Panel position="top-right">
             <AddNodeButton />
         </Panel>
+        {hasManualTrigger && (
+            <Panel position="top-left">
+                <ExecuteWorkflowButton workflowId={workflowId} />
+            </Panel>
+        )}
       </ReactFlow>
     </div>
   );

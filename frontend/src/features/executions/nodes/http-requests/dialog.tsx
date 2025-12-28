@@ -13,43 +13,45 @@ import z from "zod";
 
 
 const formSchema = z.object({
-    endpoint: z.url({message: "Invalid URL"}),
+    variableName: z.string().min(1, { message: "Variable name is required" }).regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, { message: "Variable name must start with a letter, underscore, or dollar sign and contain only alphanumeric characters, underscores, or dollar signs" }),
+    endpoint: z.string({message: "Invalid URL"}),
     method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
     body: z.string().optional(),
 })
 
-export type FormType = z.infer<typeof formSchema>;
+export type HTTPRequestFormValues = z.infer<typeof formSchema>;
 
 interface HTTPRequestTriggerDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSubmit: (values: z.infer<typeof formSchema>) => void;
-    defaultEndpoint?: string;
-    defaultMethod?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    defaultBody?: string;
+    defaultValues?: Partial<HTTPRequestFormValues>
 }
 
-export const HTTPRequestTriggerDialog = ({ open, onOpenChange, onSubmit, defaultEndpoint = "", defaultMethod = "GET", defaultBody = "" }: HTTPRequestTriggerDialogProps) => {
+export const HTTPRequestTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValues = {} }: HTTPRequestTriggerDialogProps) => {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            endpoint: defaultEndpoint,
-            method: defaultMethod,
-            body: defaultBody,
+            variableName: defaultValues.variableName || "",
+            endpoint: defaultValues.endpoint || "",
+            method: defaultValues.method || "GET",
+            body: defaultValues.body || "",
         },
     })
 
     useEffect(() => {
         if (open) {
             form.reset({
-                endpoint: defaultEndpoint,
-                method: defaultMethod,
-                body: defaultBody,
+                variableName: defaultValues.variableName || "",
+                endpoint: defaultValues.endpoint || "",
+                method: defaultValues.method || "GET",
+                body: defaultValues.body || "",
             })
         }
-    }, [open, defaultEndpoint, defaultMethod, defaultBody, form])
+    }, [open, defaultValues, form])
 
+    const watchVariableName = form.watch("variableName") || "responseData";
     const watchMethod = form.watch("method");
     const showBodyField = ["POST", "PUT", "PATCH"].includes(watchMethod);
 
@@ -72,6 +74,23 @@ export const HTTPRequestTriggerDialog = ({ open, onOpenChange, onSubmit, default
                         onSubmit={form.handleSubmit(handleSubmit)}
                         className="space-y-8 mt-4" 
                     >
+                        <FormField
+                            control={form.control}
+                            name = "variableName"
+                            render = {({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Variable Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="responseData" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Use this name to reference the response data in subsequent nodes:{" "}
+                                        {`{{${watchVariableName}.httpRequestResponse.data}}`}
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name = "method"
@@ -109,7 +128,7 @@ export const HTTPRequestTriggerDialog = ({ open, onOpenChange, onSubmit, default
                                 <FormItem>
                                     <FormLabel>Endpoint URL</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="https://api.example.com/data/{{httpResponse.data.id}}" {...field} />
+                                        <Input placeholder="https://api.example.com/data/{{httpRequestResponse.data.id}}" {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         Static URL or use {"{{variable}}"} for simple values or {"{{json variable}}"} to stringify objects.
@@ -129,8 +148,9 @@ export const HTTPRequestTriggerDialog = ({ open, onOpenChange, onSubmit, default
                                             <Textarea
                                                 className="min-h-120[px] font-mono text-sm"
                                                 placeholder={
-                                                    '{\n "userId": "{{httpResponse.data.id}}", \n "name": "{{httpResponse.data.name}}" \n "items": "{{httpResponse.data.items}}", \n}'
-                                                } 
+                                                    '{\n "userId": "{{httpRequestResponse.data.id}}", \n "name": "{{httpRequestResponse.data.name}}" \n "items": "{{httpRequestResponse.data.items}}", \n}'
+                                                }
+                                                {...field} 
                                             />
                                         </FormControl>
                                         <FormDescription>

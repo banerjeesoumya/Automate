@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEntitySearch } from "@/hooks/use-entity-search";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
-import { useCredentialsParams } from "@/hooks/use-credentials-params";
-import { useDeleteCredential, useSuspenseCredentials } from "@/hooks/use-credentials";
+import { useCredentialsParams } from "@/hooks/credentials/use-credentials-params";
+import { useDeleteCredential, useSuspenseCredentials } from "@/hooks/credentials/use-credentials";
 import { Credential, CredentialType } from "@/lib/utils";
 
 export const CredentialsSearch = () => {

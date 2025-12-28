@@ -135,9 +135,12 @@ enum NodeType {
   Initial
   Manual_Trigger
   HTTP_Request
+  GOOGLE_FORM_TRIGGER
   GEMINI
   ANTHROPIC
   OPEN_AI
+  DISCORD
+  SLACK
 }
 
 model Node {
@@ -187,7 +190,7 @@ model Execution {
   workflowId String
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
-  status     ExecutionStatus @default(RUNNING)
+  status     ExecutionStatus? @default(RUNNING)
   error      String?  @db.Text
   errorStack String?  @db.Text
 
@@ -196,11 +199,12 @@ model Execution {
 
   cloudflareWorkflowId String?  @unique
 
-  logs                 Json     
+  logs                 Json?     
 }
 
 enum ExecutionStatus {
+  QUEUED // instance is waiting to be started
   RUNNING
-  SUCCESS
-  FAILED
+  COMPLETE
+  ERRORED
 }

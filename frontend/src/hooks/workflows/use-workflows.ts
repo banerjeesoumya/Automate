@@ -3,6 +3,7 @@ import { workflowApi } from "@/lib/api"
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useWorkflowsParams } from "./use-workflows-params";
+// import { useWorkflowsParams } from "./workflows/use-workflows-params";
 
 export const useCreateWorkflow = () => {
   const router = useRouter();
@@ -27,6 +28,23 @@ export const useCreateWorkflow = () => {
     },
   });
 };
+
+export const useExecuteWorkflow = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["executeWorkflow"],
+    mutationFn: async ({ workflowId }: { workflowId: string }) => {
+      workflowApi.executeWorkflow({ workflowId });
+    },
+    onSuccess: () => {
+      toast.success("Workflow execution started successfully");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to execute workflow: ${error?.message ?? "Unknown error"}`);
+    }
+  })
+}
 
 export const useDeleteWorkflow = () => {
   const queryClient = useQueryClient();
