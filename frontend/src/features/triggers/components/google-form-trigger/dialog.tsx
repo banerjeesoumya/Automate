@@ -19,7 +19,7 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: ManualTriggerDia
     const params = useParams();
     const workflowId = params.workflowId as string;
 
-    const baseUrl = BACKEND_URL.replace("/api", "");
+    const baseUrl = (BACKEND_URL as string).replace("/api", "");
     const webhookUrl = `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}`;
 
     const copyToClipboard = async () => {
