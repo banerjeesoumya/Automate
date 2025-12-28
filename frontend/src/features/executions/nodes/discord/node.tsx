@@ -3,7 +3,7 @@
 import { Node, NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
 
-import { BaseExecutionNode } from "../base-execution-node";
+import { BaseExecutionNode } from "../../nodes/base-execution-node";
 import { DiscordFormValues, DiscordTriggerDialog } from "./dialog";
 // import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 

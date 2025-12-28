@@ -1,7 +1,7 @@
 import axios from "axios";
-import { Credential, CredentialType } from "./utils";
+import { Credential, CredentialType, Execution } from "./utils";
 
-export const BACKEND_URL = "http://127.0.0.1:8787/api";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // === Types ===
 export interface NodeData {
@@ -233,7 +233,32 @@ export const credentialApi = {
   }
 }
 
-// getManyCredentials: async (params: { page: number; pageSize: number; search?: string }) => {
-//     const response = await api.get("/credentials/all", { params });
-//     return response.data;
-//   },
+export interface GetOneExecutionResponse {
+  ok: boolean;
+  execution: Execution;
+  message: string;
+} 
+
+export interface PaginatedExecutionResponse {
+  ok: boolean;
+  items: Execution[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  message: string;
+}
+
+export const executionApi = {
+  getOneExecution: async (params: {id: string}) => {
+    const response = await api.get<GetOneExecutionResponse>(`/executions/get/${params.id}`);
+    return response.data;
+  },
+
+  getManyExecutions: async (params: { page: number; pageSize: number; search?: string }) => {
+    const response = await api.get<PaginatedExecutionResponse>("/executions/all", { params });
+    return response.data;
+  },
+}

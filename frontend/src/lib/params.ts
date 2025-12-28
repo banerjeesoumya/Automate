@@ -26,3 +26,13 @@ export const credentialsParams = {
         .withDefault("")
         .withOptions({ clearOnDefault: true })
 };
+
+export const executionsParams = {
+    page: parseAsInteger
+        .withDefault(PAGINATION.DEFAULT_PAGE)
+        .withOptions({ clearOnDefault: true }),
+
+    pageSize: parseAsInteger
+        .withDefault(PAGINATION.DEFAULT_PAGE_SIZE)
+        .withOptions({ clearOnDefault: true }),
+};

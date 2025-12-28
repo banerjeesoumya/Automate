@@ -4,33 +4,32 @@ import { Node, NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
 
 import { GlobeIcon } from "lucide-react";
-import { BaseExecutionNode } from "../base-execution-node";
-import { HTTPRequestFormValues, HTTPRequestTriggerDialog } from "./dialog";
+import { BaseExecutionNode } from "../../nodes/base-execution-node";
+import { AnthropicFormValues, AnthropicTriggerDialog } from "./dialog";
 // import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
-type HTTPRequestNodeData = {
+type AnthropicNodeData = {
     variableName?: string;
-    endpoint: string;
-    method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    body?: string;
+    systemPrompt?: string;
+    userPrompt?: string;
 }
 
-type HTTPRequestNodeType = Node<HTTPRequestNodeData>;
+type AnthropicNodeType = Node<AnthropicNodeData>;
 
-export const HTTPRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
+export const AnthropicNode = memo((props: NodeProps<AnthropicNodeType>) => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const { setNodes } = useReactFlow();
 
     const nodeData = props.data;
-    const description = nodeData?.endpoint
-        ? `${nodeData.method || "GET"} ${nodeData.endpoint}`
+    const description = nodeData?.userPrompt
+        ? `claude-sonnet-4-5 ${nodeData.userPrompt.slice(0, 30)}...`
         : "Not Configured";
 
     const nodeStatus = "initial";
 
     const handleSettings = () => setDialogOpen(true);
 
-    const handleSubmit = (values: HTTPRequestFormValues) => {
+    const handleSubmit = (values: AnthropicFormValues) => {
         setNodes((nodes) => nodes.map((node) => {
             if (node.id === props.id) {
                 return {
@@ -47,7 +46,7 @@ export const HTTPRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
 
     return (
         <>
-            <HTTPRequestTriggerDialog 
+            <AnthropicTriggerDialog 
                 open={dialogOpen} 
                 onOpenChange={setDialogOpen}
                 onSubmit={handleSubmit}
@@ -56,8 +55,8 @@ export const HTTPRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
             <BaseExecutionNode
                 {...props}
                 id={props.id}
-                icon={GlobeIcon}
-                name="HTTP Request"
+                icon="/anthropic.svg"
+                name="Anthropic"
                 status={nodeStatus}
                 description={description}
                 onDoubleClick={handleSettings}
@@ -67,4 +66,4 @@ export const HTTPRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
     )
 })
 
-HTTPRequestNode.displayName = "HTTPRequestNode";
+AnthropicNode.displayName = "AnthropicNode";

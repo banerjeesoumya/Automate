@@ -1,7 +1,7 @@
 "use client";
 
 import { LoadingView } from "@/components/entity-components";
-import { useSuspenseWorkflow } from "@/hooks/use-workflows";
+import { useSuspenseWorkflow } from "@/hooks/workflows/use-workflows";
 import {
   ReactFlow,
   applyNodeChanges,

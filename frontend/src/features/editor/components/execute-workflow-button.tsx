@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useExecuteWorkflow } from "@/hooks/use-workflows";
+import { useExecuteWorkflow } from "@/hooks/workflows/use-workflows";
 import { FlaskConicalIcon } from "lucide-react";
 
 export const ExecuteWorkflowButton = ({

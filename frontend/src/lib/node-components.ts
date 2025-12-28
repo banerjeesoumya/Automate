@@ -1,10 +1,10 @@
 import { InitialNode } from "@/components/initial-node";
-import { AnthropicNode } from "@/features/executions/components/anthropic/node";
-import { DiscordNode } from "@/features/executions/components/discord/node";
-import { GeminiNode } from "@/features/executions/components/gemini/node";
-import { HTTPRequestNode } from "@/features/executions/components/http-requests/node";
-import { OpenAINode } from "@/features/executions/components/openai/node";
-import { SlackNode } from "@/features/executions/components/slack/node";
+import { AnthropicNode } from "@/features/executions/nodes/anthropic/node";
+import { DiscordNode } from "@/features/executions/nodes/discord/node";
+import { GeminiNode } from "@/features/executions/nodes/gemini/node";
+import { HTTPRequestNode } from "@/features/executions/nodes/http-requests/node";
+import { OpenAINode } from "@/features/executions/nodes/openai/node";
+import { SlackNode } from "@/features/executions/nodes/slack/node";
 import { GoogleFormTriggerNode } from "@/features/triggers/components/google-form-trigger/node";
 import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
 // import { HTTPRequestNode } from "@/features/executions/components/http-requests/node";

@@ -42,6 +42,29 @@ export interface Credential {
   updatedAt: string | Date
 }
 
+export enum ExecutionStatus {
+  QUEUED = "QUEUED",
+  RUNNING = "RUNNING",
+  COMPLETE = "COMPLETE",
+  ERRORED = "ERRORED",
+}
+
+export interface Execution {
+  id: string
+  workflowId: string,
+  status: ExecutionStatus,
+  error: string | null,
+  errorStack: string | null,
+  startedAt: string | Date,
+  completedAt: string | Date | null,
+  cloudflareWorkflowId: string | null,
+  logs: string | null,
+  workflow: {
+    id: string,
+    name: string,
+  }
+}
+
 export const generateGoogleFormScript = (
   webhookUrl: string,
 ) => `function onFormSubmit(e) {

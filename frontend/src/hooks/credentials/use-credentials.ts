@@ -2,8 +2,9 @@ import { credentialApi } from "@/lib/api";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation"
 import { toast } from "sonner";
-import { useCredentialsParams } from "./use-credentials-params";
+// import { useCredentialsParams } from "./credentials/use-credentials-params";
 import { CredentialType } from "@/lib/utils";
+import { useCredentialsParams } from "./use-credentials-params";
 
 export const useCreateCredential = () => {
     const router = useRouter();
