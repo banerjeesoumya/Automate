@@ -34,24 +34,6 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
       throw new NonRetryableError("Instance ID is required");
     }
 
-    // 3. Get the current event status
-    // let currentStatus = (await this.env.MY_WORKFLOW.get(instanceId)).status();
-    // console.log(`Current workflow status: ${(await currentStatus).status as ExecutionStatus}`);
-
-    // try {
-    //   const result = await db.execution.create({
-    //     data: {
-    //       workflowId: workflowId,
-    //       cloudflareWorkflowId: instanceId,
-    //       status: (await currentStatus).status as ExecutionStatus,
-    //     }
-    //   })
-    //   console.log("Created execution record: ", result);
-    // } catch (error) {
-    //   console.error("Error creating execution record: ", error);
-    //   throw new NonRetryableError("Failed to create execution record");
-    // }
-
     try {
     // 3. Create the execution record in the database
 

@@ -52,7 +52,7 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
     if (isLoading) return;
 
     if (requireNoAuth && isAuthenticated) {
-      router.replace("/");
+      router.replace("/workflows");
       return;
     }
 
