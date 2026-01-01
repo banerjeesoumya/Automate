@@ -252,19 +252,18 @@ export default function Features() {
                 style={{ transition: "all 0s ease-in-out" }}
               >
                 <div className="flex flex-col gap-4">
-                  <h3 className="text-2xl leading-none font-semibold tracking-tight">Connect all your tools</h3>
+                  <h3 className="text-2xl leading-none font-semibold tracking-tight">Edge-Powered Workflow Runtime</h3>
                   <div className="text-md text-muted-foreground flex flex-col gap-2 text-sm">
                     <p className="max-w-[460px]">
-                      Plug into HTTP APIs, Slack, Discord, Google Forms, and leading AI providers to keep data flowing
-                      across your stack automatically.
+                      Ultra-low latency execution powered by 330+ cities worldwide. Your workflows run within 50ms of 95% of the global population, ensuring near-instant triggers and data synchronization.
                     </p>
                   </div>
                 </div>
                 <div className="flex min-h-[300px] grow items-start justify-center select-none">
                   <h1 className="mt-8 text-center text-5xl leading-[100%] font-semibold sm:leading-normal lg:mt-12 lg:text-6xl">
-                    <span className='bg-background relative mt-3 inline-block w-fit rounded-md border px-1.5 py-0.5 before:absolute before:top-0 before:left-0 before:z-10 before:h-full before:w-full before:bg-[url("/noise.gif")] before:opacity-[0.09] before:content-[""]'>
+                    <span className='bg-background relative mt-3 inline-block w-fit rounded-md px-1.5 py-0.5 before:absolute before:top-0 before:left-0 before:z-10 before:h-full before:w-full before:bg-[url("/noise.gif")] before:opacity-[0.09] before:content-[""]'>
                       <ScrambleHover
-                        text="feature-2"
+                        text="Global Edge"
                         scrambleSpeed={70}
                         maxIterations={20}
                         useOriginalCharsOnly={false}

@@ -47,7 +47,7 @@ export const RegisterForm = () => {
     }
     const isPending = form.formState.isSubmitting
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
             <Link
                 href="/"
                 className="absolute top-6 left-6 z-20 text-zinc-400 hover:text-[#e78a53] transition-colors duration-200 flex items-center space-x-2"
@@ -58,7 +58,7 @@ export const RegisterForm = () => {
                 <span>Back to Home</span>
             </Link>
 
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-900" />
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-100 via-white to-zinc-100 dark:from-zinc-900 dark:via-black dark:to-zinc-900" />
 
             <div className="absolute top-20 right-20 w-72 h-72 bg-[#e78a53]/10 rounded-full blur-3xl" />
             <div className="absolute bottom-20 left-20 w-96 h-96 bg-[#e78a53]/5 rounded-full blur-3xl" />
@@ -83,15 +83,14 @@ export const RegisterForm = () => {
                             </svg>
                         </div>
                     </Link>
-                    <h1 className="text-3xl font-bold text-white mb-2">Create account</h1>
-                    <p className="text-zinc-400">Join teams powering their workflows with Automate</p>
+                    <h1 className="text-3xl font-bold text-foreground mb-2">Create account</h1>
+                    <p className="text-muted-foreground">Join teams powering their workflows with Automate</p>
                 </div>
-
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-2xl p-8"
+                    className="bg-card/50 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-sm dark:bg-zinc-900/50 dark:border-zinc-800"
                 >
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -102,8 +101,8 @@ export const RegisterForm = () => {
                                     <FormItem>
                                         <FormControl>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-white">Email</label>
-                                                <Input className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-[#e78a53] focus:ring-[#e78a53]/20" placeholder="Enter your email" {...field} />
+                                                <label className="text-sm font-medium text-foreground">Email</label>
+                                                <Input className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-[#e78a53] focus:ring-[#e78a53]/20 dark:bg-zinc-800/50 dark:border-zinc-700 dark:text-white" placeholder="Enter your email" {...field} />
                                             </div>
                                         </FormControl>
                                         <FormMessage />
@@ -117,8 +116,8 @@ export const RegisterForm = () => {
                                     <FormItem>
                                         <FormControl>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-white">Password</label>
-                                                <Input className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-[#e78a53] focus:ring-[#e78a53]/20" placeholder="Enter your password" type="password" {...field} />
+                                                <label className="text-sm font-medium text-foreground">Password</label>
+                                                <Input className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-[#e78a53] focus:ring-[#e78a53]/20 dark:bg-zinc-800/50 dark:border-zinc-700 dark:text-white" placeholder="Enter your password" type="password" {...field} />
                                             </div>
                                         </FormControl>
                                         <FormMessage />
@@ -132,8 +131,8 @@ export const RegisterForm = () => {
                                     <FormItem>
                                         <FormControl>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-white">Confirm Password</label>
-                                                <Input className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-[#e78a53] focus:ring-[#e78a53]/20" placeholder="Confirm your password" type="password" {...field} />
+                                                <label className="text-sm font-medium text-foreground">Confirm Password</label>
+                                                <Input className="bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-[#e78a53] focus:ring-[#e78a53]/20 dark:bg-zinc-800/50 dark:border-zinc-700 dark:text-white" placeholder="Confirm your password" type="password" {...field} />
                                             </div>
                                         </FormControl>
                                         <FormMessage />
@@ -169,17 +168,17 @@ export const RegisterForm = () => {
                             <div className="w-full border-t border-zinc-800" />
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-black text-zinc-500">Or continue with</span>
+                            <span className="px-2 bg-background text-muted-foreground dark:bg-black dark:text-zinc-500">Or continue with</span>
                         </div>
                     </div>
 
                     <div className="mt-6 grid grid-cols-2 gap-3">
                         <Button
                             variant="outline"
-                            className="bg-zinc-900/50 border-zinc-800 text-zinc-300 hover:bg-white hover:text-black hover:border-white transition-all duration-200 group"
+                            className="bg-background border-border text-foreground hover:bg-zinc-100 transition-all duration-200 group dark:bg-zinc-900/50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-white dark:hover:text-black"
                         >
                             <svg
-                                className="w-5 h-5 mr-2 text-zinc-300 group-hover:text-black transition-colors duration-200"
+                                className="w-5 h-5 mr-2 text-zinc-500 group-hover:text-foreground transition-colors duration-200 dark:text-zinc-300 dark:group-hover:text-black"
                                 viewBox="0 0 24 24"
                             >
                                 <path
@@ -203,10 +202,10 @@ export const RegisterForm = () => {
                         </Button>
                         <Button
                             variant="outline"
-                            className="bg-zinc-900/50 border-zinc-800 text-zinc-300 hover:bg-white hover:text-black hover:border-white transition-all duration-200 group"
+                            className="bg-background border-border text-foreground hover:bg-zinc-100 transition-all duration-200 group dark:bg-zinc-900/50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-white dark:hover:text-black"
                         >
                             <svg
-                                className="w-5 h-5 mr-2 text-zinc-300 group-hover:text-black transition-colors duration-200"
+                                className="w-5 h-5 mr-2 text-zinc-500 group-hover:text-foreground transition-colors duration-200 dark:text-zinc-300 dark:group-hover:text-black"
                                 fill="currentColor"
                                 viewBox="0 0 24 24"
                             >
