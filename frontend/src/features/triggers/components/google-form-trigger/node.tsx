@@ -1,7 +1,6 @@
 import { NodeProps } from "@xyflow/react";
 import { memo, useState } from "react";
 import { BaseTriggerNode } from "../base-trigger-node";
-import { MousePointerIcon } from "lucide-react";
 import { GoogleFormTriggerDialog } from "./dialog";
 
 export const GoogleFormTriggerNode = memo((props: NodeProps) => {

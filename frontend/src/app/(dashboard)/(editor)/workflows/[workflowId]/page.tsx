@@ -1,8 +1,5 @@
-// "use client"
-
 import { Editor, EditorLoading } from "@/features/editor/components/editor";
 import { EditorHeader } from "@/features/editor/components/editor-header";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { Suspense } from "react";
 
 interface PageProps {
@@ -12,7 +9,6 @@ interface PageProps {
 }
 
 const Page = async ({ params }: PageProps) => {
-    // useAuthRedirect({ requireAuth: true });
     const { workflowId } = await params;
 
     return (

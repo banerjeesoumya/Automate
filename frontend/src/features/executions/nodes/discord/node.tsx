@@ -5,7 +5,6 @@ import { memo, useState } from "react";
 
 import { BaseExecutionNode } from "../../nodes/base-execution-node";
 import { DiscordFormValues, DiscordTriggerDialog } from "./dialog";
-// import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
 type DiscordNodeData = {
     webhookUrl?: string;

@@ -7,8 +7,6 @@ import { OpenAINode } from "@/features/executions/nodes/openai/node";
 import { SlackNode } from "@/features/executions/nodes/slack/node";
 import { GoogleFormTriggerNode } from "@/features/triggers/components/google-form-trigger/node";
 import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
-// import { HTTPRequestNode } from "@/features/executions/components/http-requests/node";
-// import { ManualTriggerNode } from "@/features/triggers/components/manual-trigger/node";
 import { NodeType } from "@/lib/utils";
 import { NodeTypes } from "@xyflow/react";
 

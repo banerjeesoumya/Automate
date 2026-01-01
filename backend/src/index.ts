@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { Env } from "./types/env";
 import { createAuth } from "./utils/auth";
-import { workflowRouter } from "./routes/workflow";
+import { workflowRouter } from "./routes/workflows/workflow";
 import { getDB } from "./db/client";
 import { cors } from "hono/cors";
-import { credsRouter } from "./routes/credsAuth";
+import { credsRouter } from "./routes/auth/credsAuth";
 import { authMiddleware } from "./utils/authMiddleware";
-import { credentialRouter } from "./routes/credentials";
-import { executionRouter } from "./routes/executions";
+import { credentialRouter } from "./routes/credentials/credentials";
+import { executionRouter } from "./routes/executions/executions";
 import { MyWorkflow } from "./workflows/execute-workflow";
 import { webhookRouter } from "./routes/webhooks";
 
@@ -21,7 +21,6 @@ interface CustomContext {
 
 const app = new Hono<{ Bindings: Env; Variables: CustomContext }>();
 
-// ✅ Global CORS
 app.use(
   "*",
   cors({
@@ -36,7 +35,6 @@ app.use(
   })
 );
 
-// ✅ Instantiate BetterAuth once per Worker isolate
 let authInstance: ReturnType<typeof createAuth> | null = null;
 function getAuth(env: Env) {
   if (!authInstance) {
@@ -45,7 +43,6 @@ function getAuth(env: Env) {
   return authInstance;
 }
 
-// ✅ Auth routes
 app.on(["GET", "POST"], "/api/auth/*", async (c) => {
   const startCpu = performance.now();
   const auth = getAuth(c.env);
@@ -55,7 +52,6 @@ app.on(["GET", "POST"], "/api/auth/*", async (c) => {
   return result;
 });
 
-// ✅ Health check
 app.get("/api/health", async (c) => {
   const db = getDB(c.env);
   const users = await db.user.findMany().catch(() => null);
@@ -65,7 +61,6 @@ app.get("/api/health", async (c) => {
   return c.json({ message: "Healthy", usersCount: users.length });
 });
 
-// ✅ Example route to test session
 app.get("/api/hello", authMiddleware(), async (c) => {
   const auth = getAuth(c.env);
   const userId = c.get("userId");
@@ -74,7 +69,6 @@ app.get("/api/hello", authMiddleware(), async (c) => {
   return c.json({ userId });
 });
 
-// ✅ Other routes
 app.route("/api/creds", credsRouter);
 app.route("/api/workflows", workflowRouter);
 app.route("/api/credentials", credentialRouter)

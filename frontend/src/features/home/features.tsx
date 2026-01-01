@@ -70,7 +70,6 @@ export default function Features() {
         >
           <div className="cursor-none">
             <div className="grid grid-cols-12 gap-4 justify-center">
-              {/* Cli */}
               <motion.div
                 className="group border-secondary/40 text-card-foreground relative col-span-12 flex flex-col overflow-hidden rounded-xl border-2 p-6 shadow-xl transition-all ease-in-out md:col-span-6 xl:col-span-6"
                 onMouseEnter={() => setIsCliHovering(true)}
@@ -100,7 +99,6 @@ export default function Features() {
                     className="relative w-full h-[400px] rounded-xl overflow-hidden"
                     style={{ borderRadius: "20px" }}
                   >
-                    {/* Background Image */}
                     <div className="absolute inset-0">
                       <img
                         src="/workflow_card_bg_lighter.png"
@@ -109,7 +107,6 @@ export default function Features() {
                       />
                     </div>
 
-                    {/* Animated Dotted Lines */}
                     <motion.div
                       className="absolute inset-0"
                       initial={{ opacity: 0 }}
@@ -129,7 +126,6 @@ export default function Features() {
                       </svg>
                     </motion.div>
 
-                    {/* Animated Purple Blur Effect */}
                     <motion.div
                       className="absolute top-1/2 left-1/2 w-16 h-16 bg-purple-500 rounded-full blur-[74px] opacity-65 transform -translate-x-1/2 -translate-y-1/2"
                       initial={{ scale: 1 }}
@@ -142,10 +138,8 @@ export default function Features() {
                       }}
                     />
 
-                    {/* Main Content Container with Staggered Animations */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="flex items-center gap-8">
-                        {/* Left Column */}
                         <div className="flex flex-col gap-3">
                           {["Google Forms", "Slack", "Discord"].map((item, index) => (
                             <motion.div
@@ -169,7 +163,6 @@ export default function Features() {
                           ))}
                         </div>
 
-                        {/* Center Logo */}
                         <motion.div
                           className="w-16 h-16 border border-gray-300 rounded-lg overflow-hidden shadow-lg"
                           initial={{ opacity: 1, scale: 1 }}
@@ -186,7 +179,6 @@ export default function Features() {
                           />
                         </motion.div>
 
-                        {/* Right Column */}
                         <div className="flex flex-col gap-3">
                           {["HTTP APIs", "AI Providers", "Webhooks"].map((item, index) => (
                             <motion.div
@@ -212,7 +204,6 @@ export default function Features() {
                       </div>
                     </div>
 
-                    {/* Animated Circular Border */}
                     <motion.div
                       className="absolute inset-0 flex items-center justify-center"
                       initial={{ opacity: 0 }}

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useState } from "react"
 import {
     ReactFlow,
     Handle,
@@ -8,10 +8,8 @@ import {
     Background,
     EdgeProps,
     getBezierPath,
-    NodeProps,
     Node,
     Edge,
-    BaseEdge,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 import { motion, AnimatePresence } from "framer-motion"
@@ -22,13 +20,11 @@ import {
     Sparkles,
     Database,
     User,
-    Layers,
     Cpu,
     Cloud,
     Zap
 } from "lucide-react"
 
-// --- Custom Edge ---
 
 const AnimatedEdge = ({
     id,
@@ -39,7 +35,6 @@ const AnimatedEdge = ({
     sourcePosition,
     targetPosition,
     style = {},
-    markerEnd,
 }: EdgeProps) => {
     const [edgePath] = getBezierPath({
         sourceX,
@@ -85,17 +80,6 @@ const AnimatedEdge = ({
     )
 }
 
-// --- Custom Nodes ---
-
-interface ArchitectureNodeData extends Record<string, any> {
-    label?: string
-    icon?: React.ElementType
-    icons?: React.ElementType[]
-    colorClass?: string
-    bgClass?: string
-    borderClass?: string
-}
-
 const ArchitectureNode = ({ data, selected }: any) => {
     const Icon = data.icon
     const colorClass = data.colorClass || "text-primary"
@@ -131,14 +115,11 @@ const ArchitectureNode = ({ data, selected }: any) => {
             <Handle type="target" position={Position.Left} className="opacity-0" />
             <Handle type="source" position={Position.Right} className="opacity-0" />
 
-            {/* Connection dots for visual style */}
             <div className={cn("absolute -left-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full border-2 bg-background", borderClass)} />
             <div className={cn("absolute -right-1.5 top-1/2 -translate-y-1/2 size-3 rounded-full border-2 bg-background", borderClass)} />
         </div>
     )
 }
-
-// --- Browser Mockup ---
 
 const BrowserMockup = () => {
     return (
@@ -169,8 +150,6 @@ const UIComponentNode = () => (
     </div>
 )
 
-// --- Data ---
-
 const nodeTypes = {
     architecture: ArchitectureNode,
     ui: UIComponentNode,
@@ -187,7 +166,6 @@ const TABS = [
         icon: Sparkles,
         description: "Seamless Workflow Orchestration",
         quote: '"The architecture leverages Cloudflare Workers and Workflows to provide a high-performance, scalable backend that handles complex logic with ease, connecting UI interactions directly to managed execution steps."',
-        // author: "Edge-HRMS Backend Architecture",
         nodes: [
             {
                 id: '1',
@@ -280,8 +258,6 @@ const TABS = [
     }
 ]
 
-// --- Main Component ---
-
 export function InteractiveArchitecture() {
     const [activeTab, setActiveTab] = useState(TABS[0].id)
     const [isDesktop, setIsDesktop] = useState(false)
@@ -298,7 +274,6 @@ export function InteractiveArchitecture() {
     return (
         <section id="architecture" className="relative py-24 px-4 bg-muted/5">
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -327,7 +302,6 @@ export function InteractiveArchitecture() {
                 </motion.div>
 
                 <div className="w-full flex flex-col gap-8">
-                    {/* Tab Switcher */}
                     <div className="flex justify-center">
                         <div className="flex p-1.5 bg-muted/30 backdrop-blur-md rounded-full border border-border shadow-inner">
                             {TABS.map((tab) => {
@@ -359,9 +333,7 @@ export function InteractiveArchitecture() {
                         </div>
                     </div>
 
-                    {/* Diagram Area */}
                     <div className="relative w-full flex flex-col lg:h-[800px] border border-border/50 rounded-3xl bg-muted/5 overflow-hidden group/diagram shadow-2xl">
-                        {/* Decorative Grid */}
                         <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
                             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
@@ -373,7 +345,6 @@ export function InteractiveArchitecture() {
                             </svg>
                         </div>
 
-                        {/* Background Gradients */}
                         <div className="absolute top-0 left-1/4 w-1/2 h-1/2 bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
                         <div className="absolute bottom-0 right-1/4 w-1/2 h-1/2 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
 
@@ -406,7 +377,6 @@ export function InteractiveArchitecture() {
                             </motion.div>
                         </AnimatePresence>
 
-                        {/* Content Info */}
                         <div className="relative p-8 lg:p-12 max-w-5xl z-10 w-full">
                             <motion.div
                                 key={activeTab + "-text"}
@@ -424,14 +394,14 @@ export function InteractiveArchitecture() {
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-3">
+                                {/* <div className="flex items-center gap-3">
                                     <div className="h-px w-8 bg-border" />
                                     <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm">
                                         <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                                             Architecture
                                         </span>
                                     </div>
-                                </div>
+                                </div> */}
                             </motion.div>
                         </div>
                     </div>

@@ -41,21 +41,17 @@ export const AppSidebar = () => {
     const pathName = usePathname();
 
     const handleSignOut = async () => {
-    try {
-        // 1️⃣ Attempt manual creds logout (if any)
-        await credsApi.signOut();
+        try {
+            await credsApi.signOut();
 
-        // 2️⃣ Also trigger BetterAuth logout for OAuth users
-        await authClient.signOut()
+            await authClient.signOut()
 
-        // 3️⃣ Clear any cached session data
-        queryClient.clear()
+            queryClient.clear()
 
-        // 4️⃣ Redirect
-        router.push("/signin")
+            router.push("/signin")
         } catch (error: any) {
-        console.error("Sign out failed:", error)
-        toast.error("Failed to sign out. Please try again.")
+            console.error("Sign out failed:", error)
+            toast.error("Failed to sign out. Please try again.")
         }
     }
     return (

@@ -2,7 +2,6 @@ import { credentialApi } from "@/lib/api";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation"
 import { toast } from "sonner";
-// import { useCredentialsParams } from "./credentials/use-credentials-params";
 import { CredentialType } from "@/lib/utils";
 import { useCredentialsParams } from "./use-credentials-params";
 
@@ -94,7 +93,6 @@ export const useUpdateCredential = () => {
 
             const previousData = queryClient.getQueryData(["credentials"]);
 
-            // Optimistic update
             queryClient.setQueryData(["credentials"], (old: any) => {
                 if (!old?.items) return old;
                 return {

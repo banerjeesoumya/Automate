@@ -4,12 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useSuspenseCredentialTypes } from "@/hooks/credentials/use-credentials";
-import { CredentialType } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -56,9 +52,7 @@ export const DiscordTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValu
     }, [open, defaultValues, form])
 
     const watchVariableName = form.watch("variableName") || "responseData";
-    // const watchMethod = form.watch("method");
-    // const showBodyField = ["POST", "PUT", "PATCH"].includes(watchMethod);
-
+    
     const handleSubmit = (values: z.infer<typeof formSchema>) => {
         onSubmit(values);
         onOpenChange(false);

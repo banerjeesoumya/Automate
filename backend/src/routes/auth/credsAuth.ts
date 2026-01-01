@@ -1,22 +1,15 @@
 import { Hono } from "hono";
-import { PrismaClient } from "@prisma/client/edge";
-import { withAccelerate } from "@prisma/extension-accelerate";
-import { Env } from "../types/env";
-import { getDB } from "../db/client"; // your helper
-import { createAuth } from "../utils/auth"; // your BetterAuth setup
 import bcrypt from "bcryptjs";
+import { Env } from "../../types/env";
+import { getDB } from "../../db/client";
 
 export const credsRouter = new Hono<{
   Bindings: Env;
   Variables: { userId?: string };
 }>();
 
-/* ========================================================
-   🪪 SIGNUP — Manual email/password registration
-   ======================================================== */
 credsRouter.post("/signup", async (c) => {
   const db = getDB(c.env);
-  // const auth = createAuth(c.env);
   const { email, password, name } = await c.req.json();
 
   if (!email || !password) {
@@ -30,10 +23,8 @@ credsRouter.post("/signup", async (c) => {
     return c.json({ message: "Email already in use." });
   }
 
-  // ✅ Hash password
   const hashedPassword = await bcrypt.hash(password, 8);
 
-  // ✅ Create user and account (mirroring BetterAuth schema)
   const newUser = await db.user.create({
     data: {
       id: crypto.randomUUID(),
@@ -52,7 +43,6 @@ credsRouter.post("/signup", async (c) => {
     include: { accounts: true },
   });
 
-  // ✅ Create session entry (same as BetterAuth)
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
@@ -86,9 +76,6 @@ credsRouter.post("/signup", async (c) => {
   });
 });
 
-/* ========================================================
-   🔐 SIGNIN — Manual email/password login
-   ======================================================== */
 credsRouter.post("/signin", async (c) => {
   const db = getDB(c.env);
   const { email, password } = await c.req.json();
@@ -120,7 +107,6 @@ credsRouter.post("/signin", async (c) => {
     return c.json({ message: "Incorrect password." });
   }
 
-  // ✅ Create new session
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
@@ -135,7 +121,6 @@ credsRouter.post("/signin", async (c) => {
     },
   });
 
-  // ✅ Set BetterAuth-compatible cookie
   const isProduction = c.env.NODE_ENV === "production";
   const cookieName = isProduction
     ? "__Secure-better-auth.session_token"
@@ -155,9 +140,6 @@ credsRouter.post("/signin", async (c) => {
   });
 });
 
-/* ========================================================
-   🚪 SIGNOUT — Logout (delete session + clear cookie)
-   ======================================================== */
 credsRouter.post("/signout", async (c) => {
   const db = getDB(c.env);
   const cookie = c.req.header("Cookie");
@@ -181,14 +163,10 @@ credsRouter.post("/signout", async (c) => {
   return c.json({ message: "Logged out successfully." });
 });
 
-/* ========================================================
-   🧩 GET SESSION — Manual credentials session
-   ======================================================== */
 credsRouter.get("/get-session", async (c) => {
   const db = getDB(c.env);
   const cookie = c.req.header("Cookie") || "";
 
-  // Extract either local or production cookie name
   const token =
     cookie.match(/better-auth\.session_token=([^;]+)/)?.[1] ??
     cookie.match(/__Secure-better-auth\.session_token=([^;]+)/)?.[1];
@@ -197,7 +175,6 @@ credsRouter.get("/get-session", async (c) => {
     return c.json({ session: null, user: null, message: "No session cookie" }, 401);
   }
 
-  // Find matching session and user
   const session = await db.session.findUnique({
     where: { token },
     include: { user: { include: { accounts: true } } },
@@ -207,16 +184,13 @@ credsRouter.get("/get-session", async (c) => {
     return c.json({ session: null, user: null, message: "Invalid or expired session" }, 401);
   }
 
-  // Optional: auto-delete expired sessions
   if (new Date(session.expiresAt) < new Date()) {
     await db.session.delete({ where: { id: session.id } });
     return c.json({ session: null, user: null, message: "Session expired" }, 401);
   }
 
-  // Detect provider
   const provider = session.user.accounts?.[0]?.providerId ?? "credentials";
 
-  // ✅ Response matches BetterAuth’s /api/auth/get-session structure
   return c.json({
     session: {
       id: session.id,
@@ -236,7 +210,7 @@ credsRouter.get("/get-session", async (c) => {
       image: session.user.image,
       createdAt: session.user.createdAt,
       updatedAt: session.user.updatedAt,
-      provider, // helpful extra field for frontend
+      provider,
     },
   });
 });

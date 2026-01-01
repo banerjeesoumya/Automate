@@ -1,15 +1,8 @@
 import { NonRetryableError } from "cloudflare:workflows";
 import { NodeExecutor, WorkflowContext } from "../lib/types";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { generateText } from "ai";
 import { decode } from "html-entities"
-import { PrismaClient } from "../../generated/prisma/edge";
 import ky from "ky";
 
-/**
- * Resolve a value from an object using dot-notation
- * Example: getByPath(ctx, "todo.httpRequestResponse.data.userId")
- */
 function getByPath(
   obj: Record<string, unknown>,
   path: string
@@ -28,10 +21,6 @@ function getByPath(
 }
 
 
-/**
- * Safe interpolation for Cloudflare Workers
- * Replaces {{path.to.value}} with resolved values from context
- */
 function interpolate(
   template: string,
   context: Record<string, unknown>
@@ -39,7 +28,6 @@ function interpolate(
   return template.replace(/\{\{\s*([^}]+)\s*\}\}/g, (_, expr) => {
     const trimmed = expr.trim();
 
-    // ✅ JSON directive
     if (trimmed.startsWith("json ")) {
       const path = trimmed.slice(5).trim();
       const value = getByPath(context, path);
@@ -51,7 +39,6 @@ function interpolate(
       return JSON.stringify(value);
     }
 
-    // ✅ Normal path resolution (NO encoding)
     const value = getByPath(context, trimmed);
 
     if (value === undefined || value === null) {
@@ -109,7 +96,7 @@ export const slackExecutor: NodeExecutor<SlackData> = async ({
       
       await ky.post(data.webhookUrl, {
         json: {
-          content: content.slice(0, 2000), // Slack message limit
+          content: content.slice(0, 2000),
         }
       });
       

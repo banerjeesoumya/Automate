@@ -27,7 +27,6 @@ export const CredentialsSearch = () => {
 
 export const CredentialsList = () => {
 
-    // throw new Error("Test Error in WorkflowsList");
     const credentials = useSuspenseCredentials();
     const [params, setParams] = useCredentialsParams();
     

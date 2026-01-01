@@ -5,7 +5,6 @@ import { memo, useState } from "react";
 
 import { BaseExecutionNode } from "../base-execution-node";
 import { SlackFormValues, SlackTriggerDialog } from "./dialog";
-// import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
 type SlackNodeData = {
     webhookUrl?: string;

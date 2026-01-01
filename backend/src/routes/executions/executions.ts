@@ -1,10 +1,10 @@
 import { Hono } from "hono";
-import { Env } from "../types/env";
-import { authMiddleware } from "../utils/authMiddleware";
-import { PrismaClient } from "../generated/prisma/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
-import z from "zod";
-import { PAGINATION } from "../utils/constants";
+import { Env } from "../../types/env";
+import { authMiddleware } from "../../utils/authMiddleware";
+import { PrismaClient } from "../../generated/prisma/edge";
+import { getAllExecutionsSchema } from "./types";
+
 
 export const executionRouter = new Hono<{
     Bindings: Env,
@@ -64,20 +64,6 @@ executionRouter.get("/get/:id", authMiddleware(), async(c) => {
     }
 })
 
-const getAllExecutionsSchema = z.object({
-    page: z
-        .string()
-        .default(String(PAGINATION.DEFAULT_PAGE))
-        .transform((val) => Number(val)),
-    pageSize: z.
-        string()
-        .default(String(PAGINATION.DEFAULT_PAGE_SIZE))
-        .transform((val) => Number(val))
-        .refine((val) => val >= PAGINATION.MIN_PAGE_SIZE && val <= PAGINATION.MAX_PAGE_SIZE, {
-                message: `pageSize must be between ${PAGINATION.MIN_PAGE_SIZE} and ${PAGINATION.MAX_PAGE_SIZE}`,
-            }),
-    search: z.string().optional().default(""),
-})
 
 executionRouter.get("/all", authMiddleware(), async(c) => {
     const prisma = new PrismaClient({
@@ -92,7 +78,6 @@ executionRouter.get("/all", authMiddleware(), async(c) => {
     const url = new URL(c.req.url);
     const queryParams = Object.fromEntries(url.searchParams.entries());
 
-    // ✅ Validate and parse using Zod
     const parseResult = getAllExecutionsSchema.safeParse(queryParams);
     if (!parseResult.success) {
         return c.json({ message: "Invalid request", errors: parseResult.error.errors }, 400);

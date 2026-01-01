@@ -11,9 +11,11 @@ import { InteractiveArchitecture } from "@/components/interactive-architecture"
 import { StickyFooter } from "@/features/home/sticky-footer"
 import Image from "next/image"
 import { useTheme } from "next-themes"
-import { Moon, Sun } from "lucide-react"
+import { Moon, Sun, Zap } from "lucide-react"
+import { useAuthRedirect } from "@/hooks/useAuthRedirect"
 
 export default function Home() {
+  const { user, isPending } = useAuthRedirect()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -180,19 +182,33 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link
-            href="/signin"
-            className="font-medium transition-colors hover:text-foreground text-muted-foreground text-sm cursor-pointer"
-          >
-            Log In
-          </Link>
+          {!isPending && (
+            user ? (
+              <Link
+                href="/workflows"
+                className="rounded-md font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 flex items-center justify-center gap-2 bg-gradient-to-b from-primary to-primary/80 text-primary-foreground shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset] px-4 py-2 text-sm"
+              >
+                <Zap className="size-4 fill-current mr-1" />
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/signin"
+                  className="font-medium transition-colors hover:text-foreground text-muted-foreground text-sm cursor-pointer"
+                >
+                  Log In
+                </Link>
 
-          <Link
-            href="/signup"
-            className="rounded-md font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center bg-gradient-to-b from-primary to-primary/80 text-primary-foreground shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset] px-4 py-2 text-sm"
-          >
-            Sign Up
-          </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-md font-bold relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center bg-gradient-to-b from-primary to-primary/80 text-primary-foreground shadow-[0px_2px_0px_0px_rgba(255,255,255,0.3)_inset] px-4 py-2 text-sm"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )
+          )}
         </div>
       </header>
 
@@ -269,18 +285,32 @@ export default function Home() {
                 FAQ
               </button>
               <div className="border-t border-border/50 pt-4 mt-4 flex flex-col space-y-3">
-                <Link
-                  href="/signin"
-                  className="px-4 py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-background/50 cursor-pointer"
-                >
-                  Log In
-                </Link>
-                <Link
-                  href="/signup"
-                  className="px-4 py-3 text-lg font-bold text-center bg-gradient-to-b from-primary to-primary/80 text-primary-foreground rounded-lg shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  Sign Up
-                </Link>
+                {!isPending && (
+                  user ? (
+                    <Link
+                      href="/workflows"
+                      className="flex items-center justify-center gap-2 px-4 py-3 text-lg font-bold bg-gradient-to-b from-primary to-primary/80 text-primary-foreground rounded-lg shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                    >
+                      <Zap className="size-5 fill-current" />
+                      Go to Dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/signin"
+                        className="px-4 py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-background/50 cursor-pointer"
+                      >
+                        Log In
+                      </Link>
+                      <Link
+                        href="/signup"
+                        className="px-4 py-3 text-lg font-bold text-center bg-gradient-to-b from-primary to-primary/80 text-primary-foreground rounded-lg shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                      >
+                        Sign Up
+                      </Link>
+                    </>
+                  )
+                )}
               </div>
             </nav>
           </div>

@@ -1,13 +1,11 @@
 import { Hono } from 'hono';
-import { Env } from '../types/env';
+import { Env } from '../../types/env';
 import { generateSlug } from 'random-word-slugs';
-import { authMiddleware } from '../utils/authMiddleware';
-import { ExecutionStatus, NodeType, PrismaClient } from '../generated/prisma/edge';
+import { authMiddleware } from '../../utils/authMiddleware';
+import { NodeType, PrismaClient } from '../../generated/prisma/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
-import z from 'zod';
-import { PAGINATION } from '../utils/constants';
 import type { Node } from '@xyflow/react';
-import { createId } from '@paralleldrive/cuid2';
+import { deleteWorkflowSchema, getAllWorkflowsSchema, getOneWorkflowSchema, updateWorkflowSchema } from './types';
 
 export const workflowRouter = new Hono<{
     Bindings: Env,
@@ -83,17 +81,16 @@ workflowRouter.post('/execute-workflow', authMiddleware(), async (c) => {
                 user: true,
             }
         })
-        // Here you would add the logic to actually execute the workflow.
         const execution = await c.env.MY_WORKFLOW.create({
             params: {
                 email: workflow.user.email,
                 id: "execute-workflow",
                 eventName: "workflows/execute.workflow",
-                workflowId: workflowId, 
+                workflowId: workflowId,
             },
             id: `workflow-exec-${workflowId}-${Date.now()}`,
         })
-        
+
         return c.json({
             ok: true,
             message: 'Workflow execution started',
@@ -108,90 +105,70 @@ workflowRouter.post('/execute-workflow', authMiddleware(), async (c) => {
     }
 })
 
-const getOneWorkflowSchema = z.object({
-    id: z.string()
-})
-
-const getAllWorkflowsSchema = z.object({
-  page: z
-    .string()
-    .default(String(PAGINATION.DEFAULT_PAGE))
-    .transform((val) => Number(val)),
-  pageSize: z
-    .string()
-    .default(String(PAGINATION.DEFAULT_PAGE_SIZE))
-    .transform((val) => Number(val))
-    .refine((val) => val >= PAGINATION.MIN_PAGE_SIZE && val <= PAGINATION.MAX_PAGE_SIZE, {
-      message: `pageSize must be between ${PAGINATION.MIN_PAGE_SIZE} and ${PAGINATION.MAX_PAGE_SIZE}`,
-    }),
-  search: z.string().optional().default(""),
-});
 
 workflowRouter.get("/all", authMiddleware(), async (c) => {
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.CONNECTION_POOL_URL,
-  }).$extends(withAccelerate());
+    const prisma = new PrismaClient({
+        datasourceUrl: c.env.CONNECTION_POOL_URL,
+    }).$extends(withAccelerate());
 
-  const userId = c.get("userId");
-  console.log("Fetching workflows for user:", userId);
-  if (!userId) {
-    return c.json({ message: "User not logged in" }, 401);
-  }
+    const userId = c.get("userId");
+    console.log("Fetching workflows for user:", userId);
+    if (!userId) {
+        return c.json({ message: "User not logged in" }, 401);
+    }
 
-  // ✅ Extract query params safely
-  const url = new URL(c.req.url);
-  const queryParams = Object.fromEntries(url.searchParams.entries());
+    const url = new URL(c.req.url);
+    const queryParams = Object.fromEntries(url.searchParams.entries());
 
-  // ✅ Validate and parse using Zod
-  const parseResult = getAllWorkflowsSchema.safeParse(queryParams);
-  if (!parseResult.success) {
-    return c.json({ message: "Invalid request", errors: parseResult.error.errors }, 400);
-  }
+    const parseResult = getAllWorkflowsSchema.safeParse(queryParams);
+    if (!parseResult.success) {
+        return c.json({ message: "Invalid request", errors: parseResult.error.errors }, 400);
+    }
 
-  const { page, pageSize, search } = parseResult.data;
+    const { page, pageSize, search } = parseResult.data;
 
-  try {
-    const [items, totalCount] = await Promise.all([
-      prisma.workflow.findMany({
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        where: {
-          userId,
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-        orderBy: { updatedAt: "desc" },
-      }),
-      prisma.workflow.count({
-        where: {
-          userId,
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-      }),
-    ]);
+    try {
+        const [items, totalCount] = await Promise.all([
+            prisma.workflow.findMany({
+                skip: (page - 1) * pageSize,
+                take: pageSize,
+                where: {
+                    userId,
+                    name: {
+                        contains: search,
+                        mode: "insensitive",
+                    },
+                },
+                orderBy: { updatedAt: "desc" },
+            }),
+            prisma.workflow.count({
+                where: {
+                    userId,
+                    name: {
+                        contains: search,
+                        mode: "insensitive",
+                    },
+                },
+            }),
+        ]);
 
-    const totalPages = Math.ceil(totalCount / pageSize);
+        const totalPages = Math.ceil(totalCount / pageSize);
 
-    return c.json({
-      ok: true,
-      items,
-      page,
-      pageSize,
-      totalCount,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPreviousPage: page > 1,
-      message: "Workflows fetched successfully",
-    });
-  } catch (error) {
-    console.error("Error fetching workflows:", error);
-    return c.json({ ok: false, message: "Error fetching workflows" }, 500);
-  }
+        return c.json({
+            ok: true,
+            items,
+            page,
+            pageSize,
+            totalCount,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1,
+            message: "Workflows fetched successfully",
+        });
+    } catch (error) {
+        console.error("Error fetching workflows:", error);
+        return c.json({ ok: false, message: "Error fetching workflows" }, 500);
+    }
 });
 
 workflowRouter.get('/get/:id', authMiddleware(), async (c) => {
@@ -286,11 +263,8 @@ workflowRouter.patch('/update/:id', authMiddleware(), async (c) => {
             message: 'Error updating workflow',
         }, 500);
     }
-})  
+})
 
-const deleteWorkflowSchema = z.object({
-    id: z.string()
-});
 
 workflowRouter.delete('/delete/:id', authMiddleware(), async (c) => {
     const prisma = new PrismaClient({
@@ -311,47 +285,24 @@ workflowRouter.delete('/delete/:id', authMiddleware(), async (c) => {
         return c.json({ error: 'Workflow ID is required' }, 400);
     }
     try {
-      const deleteWorkflow = await prisma.workflow.delete({
-        where: {
-          id: workflowId,
-          userId: userId,
-        }
-      })
-      return c.json({
-        ok: true,
-        workflow: deleteWorkflow,
-        message: 'Workflow deleted successfully',
-      })
+        const deleteWorkflow = await prisma.workflow.delete({
+            where: {
+                id: workflowId,
+                userId: userId,
+            }
+        })
+        return c.json({
+            ok: true,
+            workflow: deleteWorkflow,
+            message: 'Workflow deleted successfully',
+        })
     } catch (error) {
-      console.error('Error deleting workflow:', error);
-      return c.json({
-        ok: false,
-        message: 'Error deleting workflow',
-      }, 500);
+        console.error('Error deleting workflow:', error);
+        return c.json({
+            ok: false,
+            message: 'Error deleting workflow',
+        }, 500);
     }
-})
-
-const updateWorkflowSchema = z.object({
-    // id: z.string(),
-    nodes: z.array(
-        z.object({
-            id: z.string(),
-            type: z.string().nullish(),
-            position: z.object({
-                x: z.number(),
-                y: z.number()
-            }),
-            data: z.record(z.string(), z.any()).optional()
-        })
-    ),
-    edges: z.array(
-        z.object({
-            source: z.string(),
-            target: z.string(),
-            sourceHandle: z.string().nullish(),
-            targetHandle: z.string().nullish(),
-        })
-    )
 })
 
 workflowRouter.put('/update/:id/nodes', authMiddleware(), async (c) => {
@@ -399,7 +350,7 @@ workflowRouter.put('/update/:id/nodes', authMiddleware(), async (c) => {
                 }
             })
             // Step 3: Create New Nodes and Connections
-             await tx.node.createMany({
+            await tx.node.createMany({
                 data: nodes.map((node) => ({
                     id: node.id,
                     workflowId: workflowId,

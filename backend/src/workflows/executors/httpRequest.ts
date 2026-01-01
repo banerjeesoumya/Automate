@@ -2,10 +2,6 @@ import { NonRetryableError } from "cloudflare:workflows";
 import { NodeExecutor, WorkflowContext } from "../lib/types";
 import ky, { Options as KyOptions } from "ky";
 
-/**
- * Resolve a value from an object using dot-notation
- * Example: getByPath(ctx, "todo.httpRequestResponse.data.userId")
- */
 function getByPath(
   obj: Record<string, unknown>,
   path: string
@@ -24,10 +20,6 @@ function getByPath(
 }
 
 
-/**
- * Safe interpolation for Cloudflare Workers
- * Replaces {{path.to.value}} with resolved values from context
- */
 function interpolate(
   template: string,
   context: Record<string, unknown>
@@ -35,7 +27,6 @@ function interpolate(
   return template.replace(/\{\{\s*([^}]+)\s*\}\}/g, (_, expr) => {
     const trimmed = expr.trim();
 
-    // ✅ JSON directive
     if (trimmed.startsWith("json ")) {
       const path = trimmed.slice(5).trim();
       const value = getByPath(context, path);
@@ -47,7 +38,6 @@ function interpolate(
       return JSON.stringify(value);
     }
 
-    // ✅ Normal path resolution (NO encoding)
     const value = getByPath(context, trimmed);
 
     if (value === undefined || value === null) {
@@ -114,7 +104,6 @@ export const httpRequestExecutor: NodeExecutor<HTTP_RequestData> = async ({
 
       if (["POST", "PUT", "PATCH"].includes(data.method)) {
         if (body) {
-          // validate JSON
           JSON.parse(body);
           options.body = body;
           options.headers = {
@@ -141,13 +130,11 @@ export const httpRequestExecutor: NodeExecutor<HTTP_RequestData> = async ({
         },
       };
     } catch (err) {
-      // TODO: will add piece of code that would avoid double-wrapping NonRetryableError in the future
       throw new NonRetryableError(
         `HTTP Request node failed: ${(err as Error).message}`
       );
     }
   });
 
-  // collapse Cloudflare boundary
   return result as WorkflowContext;
 };
