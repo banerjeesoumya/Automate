@@ -24,7 +24,7 @@ export function StickyFooter() {
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
-    handleScroll() // Check initial state
+    handleScroll() 
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -48,26 +48,26 @@ export function StickyFooter() {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <ul className="space-y-1 sm:space-y-2">
-                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80">
+                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/workflows"}>
                   Workflows
                 </li>
-                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80">
+                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/executions"}>
                   Executions
                 </li>
-                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80">
+                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/credentials"}>
                   Credentials
                 </li>
               </ul>
               <ul className="space-y-1 sm:space-y-2">
-                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80">
+                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/docs"}>
                   Docs
                 </li>
-                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80">
+                {/* <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/changelog"}>
                   Changelog
                 </li>
-                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80">
+                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/support"}>
                   Support
-                </li>
+                </li> */}
               </ul>
             </motion.div>
             <motion.h2

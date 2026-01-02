@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Hero from "@/features/home/hero"
 import Features from "@/features/home/features"
-import { TestimonialsSection } from "@/features/home/testimonials"
+import { DocsSection } from "@/features/home/docs-section"
 import { NewReleasePromo } from "@/features/home/new-release-promo"
 import { FAQSection } from "@/features/home/faq-section"
 import { PricingSection } from "@/features/home/pricing-section"
@@ -138,6 +138,21 @@ export default function Home() {
             className="px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             onClick={(e) => {
               e.preventDefault()
+              const element = document.getElementById("docs")
+              if (element) {
+                const headerOffset = 120
+                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
+                const offsetPosition = elementPosition - headerOffset
+                window.scrollTo({ top: offsetPosition, behavior: "smooth" })
+              }
+            }}
+          >
+            Docs
+          </a>
+          <a
+            className="px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault()
               const element = document.getElementById("pricing")
               if (element) {
                 const headerOffset = 120
@@ -148,21 +163,6 @@ export default function Home() {
             }}
           >
             Pricing
-          </a>
-          <a
-            className="px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            onClick={(e) => {
-              e.preventDefault()
-              const element = document.getElementById("testimonials")
-              if (element) {
-                const headerOffset = 120
-                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
-                const offsetPosition = elementPosition - headerOffset
-                window.scrollTo({ top: offsetPosition, behavior: "smooth" })
-              }
-            }}
-          >
-            Testimonials
           </a>
           <a
             className="px-3 py-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
@@ -267,16 +267,16 @@ export default function Home() {
                 Architecture
               </button>
               <button
+                onClick={() => handleMobileNavClick("docs")}
+                className="text-left px-4 py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-background/50"
+              >
+                Docs
+              </button>
+              <button
                 onClick={() => handleMobileNavClick("pricing")}
                 className="text-left px-4 py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-background/50"
               >
                 Pricing
-              </button>
-              <button
-                onClick={() => handleMobileNavClick("testimonials")}
-                className="text-left px-4 py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-background/50"
-              >
-                Testimonials
               </button>
               <button
                 onClick={() => handleMobileNavClick("faq")}
@@ -330,14 +330,14 @@ export default function Home() {
         <InteractiveArchitecture />
       </div>
 
+      {/* Docs Section */}
+      <div id="docs">
+        <DocsSection />
+      </div>
+
       {/* Pricing Section */}
       <div id="pricing">
         <PricingSection />
-      </div>
-
-      {/* Testimonials Section */}
-      <div id="testimonials">
-        <TestimonialsSection />
       </div>
 
       <NewReleasePromo />
