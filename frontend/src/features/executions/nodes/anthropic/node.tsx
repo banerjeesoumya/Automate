@@ -44,12 +44,14 @@ export const AnthropicNode = memo((props: NodeProps<AnthropicNodeType>) => {
 
     return (
         <>
-            <AnthropicTriggerDialog 
-                open={dialogOpen} 
-                onOpenChange={setDialogOpen}
-                onSubmit={handleSubmit}
-                defaultValues={nodeData}
-            />
+            {dialogOpen && (
+                <AnthropicTriggerDialog
+                    open={dialogOpen}
+                    onOpenChange={setDialogOpen}
+                    onSubmit={handleSubmit}
+                    defaultValues={nodeData}
+                />
+            )}
             <BaseExecutionNode
                 {...props}
                 id={props.id}

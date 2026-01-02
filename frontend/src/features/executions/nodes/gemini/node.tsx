@@ -43,12 +43,14 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
 
     return (
         <>
-            <GeminiTriggerDialog 
-                open={dialogOpen} 
-                onOpenChange={setDialogOpen}
-                onSubmit={handleSubmit}
-                defaultValues={nodeData}
-            />
+            {dialogOpen && (
+                <GeminiTriggerDialog
+                    open={dialogOpen}
+                    onOpenChange={setDialogOpen}
+                    onSubmit={handleSubmit}
+                    defaultValues={nodeData}
+                />
+            )}
             <BaseExecutionNode
                 {...props}
                 id={props.id}

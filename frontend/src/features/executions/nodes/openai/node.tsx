@@ -44,12 +44,14 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeType>) => {
 
     return (
         <>
-            <OpenAITriggerDialog 
-                open={dialogOpen} 
-                onOpenChange={setDialogOpen}
-                onSubmit={handleSubmit}
-                defaultValues={nodeData}
-            />
+            {dialogOpen && (
+                <OpenAITriggerDialog
+                    open={dialogOpen}
+                    onOpenChange={setDialogOpen}
+                    onSubmit={handleSubmit}
+                    defaultValues={nodeData}
+                />
+            )}
             <BaseExecutionNode
                 {...props}
                 id={props.id}
