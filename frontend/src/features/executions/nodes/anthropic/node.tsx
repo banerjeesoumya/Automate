@@ -3,10 +3,8 @@
 import { Node, NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
 
-import { GlobeIcon } from "lucide-react";
 import { BaseExecutionNode } from "../../nodes/base-execution-node";
 import { AnthropicFormValues, AnthropicTriggerDialog } from "./dialog";
-// import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
 type AnthropicNodeData = {
     variableName?: string;

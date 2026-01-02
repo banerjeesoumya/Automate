@@ -15,14 +15,12 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
   useEffect(() => {
     console.log("🔍 Checking hybrid session...");
 
-    // 1️⃣ If BetterAuth has a session, skip manual creds check
     if (betterAuthSession?.user) {
       console.log("✅ BetterAuth session found, skipping manual check");
       setLoadingManual(false);
       return;
     }
 
-    // 2️⃣ Otherwise, check manual creds session
     credsApi
       .getSession()
       .then((res) => {
@@ -43,7 +41,6 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
       .finally(() => setLoadingManual(false));
   }, [betterAuthSession]);
 
-  // 3️⃣ Merge both auth systems
   const user = betterAuthSession?.user || manualSession?.user;
   const isAuthenticated = Boolean(user);
   const isLoading = isPending || loadingManual;
@@ -52,7 +49,7 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
     if (isLoading) return;
 
     if (requireNoAuth && isAuthenticated) {
-      router.replace("/");
+      router.replace("/workflows");
       return;
     }
 

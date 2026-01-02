@@ -6,7 +6,6 @@ import { memo, useState } from "react";
 import { GlobeIcon } from "lucide-react";
 import { BaseExecutionNode } from "../../nodes/base-execution-node";
 import { HTTPRequestFormValues, HTTPRequestTriggerDialog } from "./dialog";
-// import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
 type HTTPRequestNodeData = {
     variableName?: string;

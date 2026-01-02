@@ -1,5 +1,3 @@
-import { CredentialView } from "@/features/credentials/components/credential";
-import { CredentialsLoading } from "@/features/credentials/components/credentials";
 import { ExecutionView } from "@/features/executions/components/execution";
 import { ExecutionsLoading } from "@/features/executions/components/executions";
 import { Suspense } from "react";

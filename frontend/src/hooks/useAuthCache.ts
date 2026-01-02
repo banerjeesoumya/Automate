@@ -9,7 +9,6 @@ export function useAuthCacheSync() {
   const { data: session } = authClient.useSession()
 
   useEffect(() => {
-    // When session changes (sign-in or sign-out), clear cached data
     queryClient.clear()
   }, [session?.user?.id])
 }

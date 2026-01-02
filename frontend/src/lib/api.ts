@@ -3,7 +3,6 @@ import { Credential, CredentialType, Execution } from "./utils";
 
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// === Types ===
 export interface NodeData {
   id: string;
   type: string;
@@ -97,10 +96,9 @@ export const credsApi = {
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        // Expected — user is signed out
         return { session: null, user: null };
       }
-      throw error; // Re-throw any unexpected errors
+      throw error;
     }
   },
 }

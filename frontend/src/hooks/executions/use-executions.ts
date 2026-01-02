@@ -19,7 +19,7 @@ export const useSuspenseExecutions = () => {
     return useSuspenseQuery({
         queryKey: ["executions", params],
         queryFn: () => executionApi.getManyExecutions(params),
-         refetchInterval: 2000,          // every 2 seconds
+         refetchInterval: 5000,          // every 5 seconds
         refetchOnWindowFocus: true,
         refetchOnMount: "always",
         staleTime: 0

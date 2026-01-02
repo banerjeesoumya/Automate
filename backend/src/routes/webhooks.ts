@@ -21,9 +21,6 @@ webhookRouter.post("/google-form", async (c) => {
         datasourceUrl: c.env.CONNECTION_POOL_URL
     }).$extends(withAccelerate())
     console.log("Received Google Form webhook");
-    // if (!userId) {
-    //     return c.json({ ok: false, message: "Unauthorized" }, 401);
-    // }
     
     const url = new URL(c.req.url);
     const queryParams = Object.fromEntries(url.searchParams.entries());

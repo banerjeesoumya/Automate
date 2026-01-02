@@ -1,9 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import { AppHeader } from "@/components/app-header"
-import { AppSidebar } from "@/components/app-sidebar"
-
-
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     return (

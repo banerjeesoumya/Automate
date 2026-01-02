@@ -1,10 +1,9 @@
 import { Hono } from "hono";
-import { Env } from "../types/env";
-import { authMiddleware } from "../utils/authMiddleware";
-import z from "zod";
-import { CredentialType, PrismaClient } from "../generated/prisma/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
-import { PAGINATION } from "../utils/constants";
+import { Env } from "../../types/env";
+import { authMiddleware } from "../../utils/authMiddleware";
+import { CredentialType, PrismaClient } from "../../generated/prisma/edge";
+import { createCredentialSchema, getAllCredentialsSchema, updateCredentialSchema } from "./types";
 
 export const credentialRouter = new Hono<{
     Bindings: Env;
@@ -13,16 +12,11 @@ export const credentialRouter = new Hono<{
     }
 }>();
 
-credentialRouter.post("/test", authMiddleware(), async(c) => {
+credentialRouter.post("/test", authMiddleware, async(c) => {
     console.log("Credential test route accessed by user:", c.get("userId"));
     return c.json({message: "Credential test route works!"});
 })
 
-const createCredentialSchema = z.object({
-    name: z.string().min(1),
-    type: z.nativeEnum(CredentialType),
-    value: z.string().min(1, "Value cannot be empty"),
-})
 
 credentialRouter.post("/create", authMiddleware(), async(c) => {
     const prisma = new PrismaClient({
@@ -70,11 +64,6 @@ credentialRouter.post("/create", authMiddleware(), async(c) => {
     }
 })
 
-const updateCredentialSchema = z.object({
-    name: z.string().min(1).optional(),
-    value: z.string().min(1, "Value cannot be empty").optional(),
-    type: z.nativeEnum(CredentialType).optional(),
-});
 
 credentialRouter.put("/:id", authMiddleware(), async(c) => {
     const prisma = new PrismaClient({
@@ -128,20 +117,6 @@ credentialRouter.put("/:id", authMiddleware(), async(c) => {
     }
 })
 
-const getAllCredentialsSchema = z.object({
-    page: z
-        .string()
-        .default(String(PAGINATION.DEFAULT_PAGE))
-        .transform((val) => Number(val)),
-    pageSize: z.
-        string()
-        .default(String(PAGINATION.DEFAULT_PAGE_SIZE))
-        .transform((val) => Number(val))
-        .refine((val) => val >= PAGINATION.MIN_PAGE_SIZE && val <= PAGINATION.MAX_PAGE_SIZE, {
-              message: `pageSize must be between ${PAGINATION.MIN_PAGE_SIZE} and ${PAGINATION.MAX_PAGE_SIZE}`,
-            }),
-    search: z.string().optional().default(""),
-})
 
 credentialRouter.get("/all", authMiddleware(), async(c) => {
     const prisma = new PrismaClient({
@@ -159,7 +134,6 @@ credentialRouter.get("/all", authMiddleware(), async(c) => {
     const url = new URL(c.req.url);
     const queryParams = Object.fromEntries(url.searchParams.entries());
 
-    // ✅ Validate and parse using Zod
     const parseResult = getAllCredentialsSchema.safeParse(queryParams);
     if (!parseResult.success) {
         return c.json({ message: "Invalid request", errors: parseResult.error.errors }, 400);

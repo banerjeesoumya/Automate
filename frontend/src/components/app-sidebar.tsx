@@ -1,6 +1,6 @@
 "use client"
 
-import { FolderOpenIcon, HistoryIcon, KeyIcon, LogOutIcon } from "lucide-react"
+import { BookOpenIcon, FolderOpenIcon, HistoryIcon, KeyIcon, LogOutIcon } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar"
 import Link from "next/link"
 import Image from "next/image"
@@ -28,6 +28,11 @@ const menuItems = [
                 title: "Executions",
                 icon: HistoryIcon,
                 url: "/executions"
+            },
+            {
+                title: "Docs",
+                icon: BookOpenIcon,
+                url: "/docs"
             }
         ]
     }
@@ -41,21 +46,17 @@ export const AppSidebar = () => {
     const pathName = usePathname();
 
     const handleSignOut = async () => {
-    try {
-        // 1️⃣ Attempt manual creds logout (if any)
-        await credsApi.signOut();
+        try {
+            await credsApi.signOut();
 
-        // 2️⃣ Also trigger BetterAuth logout for OAuth users
-        await authClient.signOut()
+            await authClient.signOut()
 
-        // 3️⃣ Clear any cached session data
-        queryClient.clear()
+            queryClient.clear()
 
-        // 4️⃣ Redirect
-        router.push("/signin")
+            router.push("/signin")
         } catch (error: any) {
-        console.error("Sign out failed:", error)
-        toast.error("Failed to sign out. Please try again.")
+            console.error("Sign out failed:", error)
+            toast.error("Failed to sign out. Please try again.")
         }
     }
     return (

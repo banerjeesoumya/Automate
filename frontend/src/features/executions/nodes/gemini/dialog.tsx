@@ -60,9 +60,7 @@ export const GeminiTriggerDialog = ({ open, onOpenChange, onSubmit, defaultValue
     }, [open, defaultValues, form])
 
     const watchVariableName = form.watch("variableName") || "responseData";
-    // const watchMethod = form.watch("method");
-    // const showBodyField = ["POST", "PUT", "PATCH"].includes(watchMethod);
-
+    
     const handleSubmit = (values: z.infer<typeof formSchema>) => {
         onSubmit(values);
         onOpenChange(false);

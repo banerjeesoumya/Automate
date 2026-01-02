@@ -14,6 +14,5 @@ export const googleFormTriggerExecutor: NodeExecutor<GoogleFormTriggerData> = as
     async () => context
   );
 
-  // ✅ collapse Cloudflare boundary here
   return result as WorkflowContext;
 };

@@ -13,6 +13,5 @@ export const manualTriggerExecutor: NodeExecutor<ManualTriggerData> = async ({
     async () => context
   );
 
-  // ✅ collapse Cloudflare boundary here
   return result as WorkflowContext;
 };

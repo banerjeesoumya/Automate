@@ -3,7 +3,6 @@ import { workflowApi } from "@/lib/api"
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useWorkflowsParams } from "./use-workflows-params";
-// import { useWorkflowsParams } from "./workflows/use-workflows-params";
 
 export const useCreateWorkflow = () => {
   const router = useRouter();
@@ -13,14 +12,11 @@ export const useCreateWorkflow = () => {
     mutationKey: ["createWorkflow"],
     mutationFn: workflowApi.createWorkflow,
     onSuccess: (data) => {
-      // assuming your API response structure is like { ok: true, workflow: { name: ... } }
       const name = data.workflow.name ?? "Untitled";
       toast.success(`Workflow "${name}" created successfully`);
 
-      // Invalidate all workflows list to trigger refetch
       queryClient.invalidateQueries({ queryKey: ["workflows"] });
 
-      // Optionally navigate
       router.push(`/workflows/${data.workflow.id}`);
     },
     onError: (error: any) => {
@@ -53,13 +49,10 @@ export const useDeleteWorkflow = () => {
     mutationKey: ["deleteWorkflow"],
     mutationFn: workflowApi.deleteWorkflow,
 
-    // ⚡ Optimistically remove the workflow before API resolves
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: ["workflows"] });
 
       const previousData = queryClient.getQueryData(["workflows"]);
-
-      // Optimistic update
       queryClient.setQueryData(["workflows"], (old: any) => {
         if (!old?.items) return old;
         return {
@@ -71,20 +64,16 @@ export const useDeleteWorkflow = () => {
       return { previousData };
     },
 
-    // ✅ Server success — confirm delete
     onSuccess: (data) => {
       const name = data.workflow?.name ?? "Untitled";
       toast.success(`Workflow "${name}" deleted successfully`);
       queryClient.invalidateQueries({ queryKey: ["workflows"] });
     },
 
-    // ❌ Server error — rollback
     onError: (error: any, _vars, context) => {
       queryClient.setQueryData(["workflows"], context?.previousData);
       toast.error(`Failed to delete workflow: ${error?.message ?? "Unknown error"}`);
     },
-
-    // 🧹 Always refetch after success/error to sync pagination
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["workflows"] });
     },
@@ -123,7 +112,6 @@ export const useUpdateWorkflowName = () => {
 
       const previousData = queryClient.getQueryData(["workflows"]);
 
-      // Optimistic update
       queryClient.setQueryData(["workflows"], (old: any) => {
         if (!old?.items) return old;
         return {
@@ -161,12 +149,10 @@ export const useUpdateWorkflowNodesAndEdges = () => {
   return useMutation({
     mutationKey: ["updateWorkflowNodesAndEdges"],
 
-    // actual mutation function
     mutationFn: async ({ id, nodes, edges }: { id: string; nodes: any[]; edges: any[] }) => {
       return workflowApi.updateWorkflowNodesAndEdges({ id }, nodes, edges);
     },
 
-    // optional optimistic update (to make editor feel instant)
     onMutate: async ({ id, nodes, edges }) => {
       await queryClient.cancelQueries({ queryKey: ["workflow", id] });
 
@@ -184,20 +170,16 @@ export const useUpdateWorkflowNodesAndEdges = () => {
       return { previousData };
     },
 
-    // when request succeeds
     onSuccess: (data, { id }) => {
       toast.success("Workflow updated successfully!");
       queryClient.invalidateQueries({ queryKey: ["workflow", id] });
       queryClient.invalidateQueries({ queryKey: ["workflows"] });
     },
 
-    // on error rollback
     onError: (error: any, { id }, context) => {
       queryClient.setQueryData(["workflow", id], context?.previousData);
       toast.error(`Failed to update workflow: ${error?.message ?? "Unknown error"}`);
     },
-
-    // after success/error
     onSettled: (_, __, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["workflow", id] });
     },

@@ -2,9 +2,9 @@ import { AuthLayout } from "@/features/auth/auth-layout"
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <AuthLayout>
+        <>
             {children}
-        </AuthLayout>
+        </>
     )
 }
 

@@ -1,28 +1,30 @@
 "use client"
 
-import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useSuspenseWorkflow, useUpdateWorkflowName, useUpdateWorkflowNodesAndEdges } from "@/hooks/workflows/use-workflows"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { SaveIcon } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { editorAtom } from "../store/atoms"
+import { editorAtom, isDirtyAtom } from "../store/atoms"
 
 export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
     const editor = useAtomValue(editorAtom)
     const saveWorkflow = useUpdateWorkflowNodesAndEdges()
+    const setIsDirty = useSetAtom(isDirtyAtom)
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!editor) {
             return;
         }
         const nodes = editor.getNodes();
         const edges = editor.getEdges();
 
-        saveWorkflow.mutate({ id: workflowId, nodes, edges });
+        await saveWorkflow.mutateAsync({ id: workflowId, nodes, edges });
+        setIsDirty(false);
     }
     return (
         <div className="ml-auto">
@@ -109,7 +111,7 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
             {workflow.name}
         </BreadcrumbItem>
     )
-}   
+}
 
 export const EditorBreadCrumbs = ({ workflowId }: { workflowId: string }) => {
     return (

@@ -1,0 +1,47 @@
+[
+    {
+        "order": 1,
+        "startLat": -19.885592,
+        "startLng": -43.951191,
+        "endLat": 37.759703,
+        "endLng": -122.428093,
+        "arcAlt": 0.1,
+        "color": "#fb923c"
+    },
+    {
+        "order": 1,
+        "startLat": 28.613939,
+        "startLng": 77.209021,
+        "endLat": 40.712776,
+        "endLng": -74.005974,
+        "arcAlt": 0.3,
+        "color": "#fb923c"
+    },
+    {
+        "order": 1,
+        "startLat": 51.507351,
+        "startLng": -0.127758,
+        "endLat": 35.689487,
+        "endLng": 139.691706,
+        "arcAlt": 0.2,
+        "color": "#fb923c"
+    },
+    {
+        "order": 2,
+        "startLat": -33.86882,
+        "startLng": 151.209296,
+        "endLat": 1.352083,
+        "endLng": 103.819836,
+        "arcAlt": 0.2,
+        "color": "#fb923c"
+    },
+    {
+        "order": 2,
+        "startLat": 52.520007,
+        "startLng": 13.404954,
+        "endLat": 48.856614,
+        "endLng": 2.352222,
+        "arcAlt": 0.1,
+        "color": "#fb923c"
+    }
+]

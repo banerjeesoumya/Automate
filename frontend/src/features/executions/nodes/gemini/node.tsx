@@ -2,11 +2,8 @@
 
 import { Node, NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
-
-import { GlobeIcon } from "lucide-react";
 import { BaseExecutionNode } from "../base-execution-node";
 import { GeminiFormValues, GeminiTriggerDialog } from "./dialog";
-// import { FormType, HTTPRequestTriggerDialog } from "./dialog";
 
 type GeminiNodeData = {
     variableName?: string;
