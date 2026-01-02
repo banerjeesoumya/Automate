@@ -147,7 +147,7 @@ export const LoginForm = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className="mt-6"
                 >
-                    <div className="relative">
+                    {/* <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-zinc-800" />
                         </div>
@@ -197,7 +197,7 @@ export const LoginForm = () => {
                             </svg>
                             GitHub
                         </Button>
-                    </div>
+                    </div> */}
                 </motion.div>
             </motion.div>
         </div>
