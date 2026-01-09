@@ -5,7 +5,7 @@ export type Env = {
     JWT_SECRET: string,
     CONNECTION_POOL_URL: string,
     GOOGLE_GENERATIVE_AI_API_KEY: string,
-    CHAT_ROOM: DurableObjectNamespace
+    EXECUTION_STATE: DurableObjectNamespace
     AI: Ai,
     NODE_ENV: 'development' | 'production',
     MY_WORKFLOW:  Workflow<Params>
