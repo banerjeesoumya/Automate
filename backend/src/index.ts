@@ -9,10 +9,11 @@ import { authMiddleware } from "./utils/authMiddleware";
 import { credentialRouter } from "./routes/credentials/credentials";
 import { executionRouter } from "./routes/executions/executions";
 import { MyWorkflow } from "./workflows/execute-workflow";
+import { ExecutionState } from "./durable/execution-state";
 import { webhookRouter } from "./routes/webhooks";
 
 export {
-  MyWorkflow
+  MyWorkflow, ExecutionState
 }
 
 interface CustomContext {

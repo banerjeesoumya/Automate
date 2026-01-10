@@ -60,7 +60,6 @@ workflowRouter.post('/execute-workflow', authMiddleware(), async (c) => {
     }).$extends(withAccelerate());
 
     const userId = c.get('userId');
-    console.log('Executing workflow for user:', userId);
     if (!userId) {
         return c.json({ message: 'User not logged in' }, 401);
     }
@@ -91,10 +90,17 @@ workflowRouter.post('/execute-workflow', authMiddleware(), async (c) => {
             id: `workflow-exec-${workflowId}-${Date.now()}`,
         })
 
+        const execID = await prisma.execution.create({
+            data: {
+                workflowId: workflowId,
+                cloudflareWorkflowId: execution.id,
+            }
+        })
+
         return c.json({
             ok: true,
             message: 'Workflow execution started',
-            execution
+            executionId: execID.id
         })
     } catch (error) {
         console.error('Error executing workflow:', error);
@@ -112,7 +118,6 @@ workflowRouter.get("/all", authMiddleware(), async (c) => {
     }).$extends(withAccelerate());
 
     const userId = c.get("userId");
-    console.log("Fetching workflows for user:", userId);
     if (!userId) {
         return c.json({ message: "User not logged in" }, 401);
     }
@@ -182,7 +187,6 @@ workflowRouter.get('/get/:id', authMiddleware(), async (c) => {
     if (!parseResult.success) {
         return c.json({ message: 'Invalid request', errors: parseResult.error.errors }, 400);
     }
-    console.log('Fetching workflows for user:', userId);
     if (!userId) {
         return c.json({ message: 'User not logged in' }, 401);
     }
@@ -326,6 +330,7 @@ workflowRouter.put('/update/:id/nodes', authMiddleware(), async (c) => {
 
     try {
         const { nodes, edges } = correctUpdateBody.data;
+        
         // Step 1: Find the workflow to ensure it exists and belongs to the user
         const existingWorkflow = await prisma.workflow.findFirst({
             where: {
