@@ -28,13 +28,13 @@ export const BaseNode = forwardRef<
     {...props}
   >
     {props.children}
-    {status === "error" && (
+    {status === "ERRORED" && (
       <XCircleIcon className="absolute right-0.5 bottom-0.5 size-2 text-red-700 stroke-3" />
     )}
-    {status === "success" && (
+    {status === "COMPLETE" && (
       <CheckCircle2Icon className="absolute right-0.5 bottom-0.5 size-2 text-green-700 stroke-3" />
     )}
-    {status === "loading" && (
+    {status === "RUNNING" && (
       <Loader2Icon className="absolute -right-0.5 -bottom-0.5 size-2 text-blue-700 stroke-3 animate-spin" />
     )}
     {status === "QUEUED" && (
