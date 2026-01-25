@@ -5,11 +5,15 @@ import { memo, useState } from "react";
 
 import { BaseExecutionNode } from "../base-execution-node";
 import { OpenAIFormValues, OpenAITriggerDialog } from "./dialog";
+import { ExecutionStatus } from "@/lib/utils";
 
 type OpenAINodeData = {
     variableName?: string;
     systemPrompt?: string;
     userPrompt?: string;
+
+    executionStatus?: ExecutionStatus;
+    error?: string;
 }
 
 type OpenAINodeType = Node<OpenAINodeData>;
@@ -23,7 +27,7 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeType>) => {
         ? `gpt-4 ${nodeData.userPrompt.slice(0, 30)}...`
         : "Not Configured";
 
-    const nodeStatus = "initial";
+    const nodeStatus = nodeData.executionStatus;
 
     const handleSettings = () => setDialogOpen(true);
 

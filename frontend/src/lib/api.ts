@@ -59,7 +59,7 @@ export interface PaginatedWorkflowResponse {
 export interface WorkflowExecutionResponse {
   ok: boolean;
   message: string;
-  execution:{}
+  executionId: string;
 }
 // === Axios instance ===
 export const api = axios.create({

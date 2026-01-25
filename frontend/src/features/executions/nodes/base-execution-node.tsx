@@ -8,7 +8,6 @@ import { BaseNode, BaseNodeContent } from "../../../components/react-flow/base-n
 import Image from "next/image";
 import { BaseHandle } from "../../../components/react-flow/base-handle";
 import { NodeStatus, NodeStatusIndicator } from "@/components/react-flow/node-status-indicator";
-// import { NodeStatus, NodeStatusIndicator } from "@/components/react-flow/node-status-indicator";
 
 interface BaseExecutionNodeProps extends NodeProps {
     icon: LucideIcon | string;

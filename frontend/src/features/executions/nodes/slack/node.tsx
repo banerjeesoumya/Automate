@@ -5,10 +5,14 @@ import { memo, useState } from "react";
 
 import { BaseExecutionNode } from "../base-execution-node";
 import { SlackFormValues, SlackTriggerDialog } from "./dialog";
+import { ExecutionStatus } from "@/lib/utils";
 
 type SlackNodeData = {
     webhookUrl?: string;
     content?: string;
+
+    executionStatus?: ExecutionStatus;
+    error?: string;
 }
 
 type SlackNodeType = Node<SlackNodeData>;
@@ -22,7 +26,7 @@ export const SlackNode = memo((props: NodeProps<SlackNodeType>) => {
         ? `Send ${nodeData.content.slice(0, 30)}...`
         : "Not Configured";
 
-    const nodeStatus = "initial";
+    const nodeStatus = nodeData.executionStatus
 
     const handleSettings = () => setDialogOpen(true);
 

@@ -4,11 +4,15 @@ import { Node, NodeProps, useReactFlow } from "@xyflow/react";
 import { memo, useState } from "react";
 import { BaseExecutionNode } from "../base-execution-node";
 import { GeminiFormValues, GeminiTriggerDialog } from "./dialog";
+import { ExecutionStatus } from "@/lib/utils";
 
 type GeminiNodeData = {
     variableName?: string;
     systemPrompt?: string;
     userPrompt?: string;
+
+    executionStatus?: ExecutionStatus;
+    error?: string;
 }
 
 type GeminiNodeType = Node<GeminiNodeData>;
@@ -22,7 +26,7 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
         ? `gemini-2.5-flash-lite ${nodeData.userPrompt.slice(0, 30)}...`
         : "Not Configured";
 
-    const nodeStatus = "initial";
+    const nodeStatus = nodeData.executionStatus;
 
     const handleSettings = () => setDialogOpen(true);
 

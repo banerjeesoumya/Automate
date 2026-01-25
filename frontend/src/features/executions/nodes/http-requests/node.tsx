@@ -6,12 +6,16 @@ import { memo, useState } from "react";
 import { GlobeIcon } from "lucide-react";
 import { BaseExecutionNode } from "../../nodes/base-execution-node";
 import { HTTPRequestFormValues, HTTPRequestTriggerDialog } from "./dialog";
+import { ExecutionStatus } from "@/lib/utils";
 
 type HTTPRequestNodeData = {
     variableName?: string;
     endpoint: string;
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     body?: string;
+
+    executionStatus?: ExecutionStatus;
+    error?: string;
 }
 
 type HTTPRequestNodeType = Node<HTTPRequestNodeData>;
@@ -25,8 +29,7 @@ export const HTTPRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
         ? `${nodeData.method || "GET"} ${nodeData.endpoint}`
         : "Not Configured";
 
-    const nodeStatus = "initial";
-
+    const nodeStatus = nodeData.executionStatus
     const handleSettings = () => setDialogOpen(true);
 
     const handleSubmit = (values: HTTPRequestFormValues) => {
