@@ -1,6 +1,6 @@
 import { Context, Next } from "hono";
 import { getAuth } from "./auth";
-import { getDB } from "../db/client";
+import { getDB } from "@repo/db/client";
 
 export const authMiddleware = () => {
   return async (c: Context, next: Next) => {

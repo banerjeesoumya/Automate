@@ -43,6 +43,20 @@ export const LoginForm = () => {
             return;
         }
     }
+    const githubSignIn = async () => {
+        await authClient.signIn.social({
+            provider: "github",
+            callbackURL: `${process.env.NEXT_PUBLIC_APP_URL}/workflows`,
+        }, {
+            onSuccess: () => {
+                // toast.success("Login successful");
+                router.push("/workflows");
+            },
+            onError: (error) => {
+                toast.error(error.error.message || "Login failed");
+            }
+        })
+    }
     const isPending = form.formState.isSubmitting
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4 overflow-hidden relative">
@@ -147,7 +161,7 @@ export const LoginForm = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className="mt-6"
                 >
-                    {/* <div className="relative">
+                    <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-zinc-800" />
                         </div>
@@ -185,6 +199,7 @@ export const LoginForm = () => {
                             Google
                         </Button>
                         <Button
+                            onClick={githubSignIn}
                             variant="outline"
                             className="bg-background border-border text-foreground hover:bg-zinc-100 transition-all duration-200 group dark:bg-zinc-900/50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-white dark:hover:text-black"
                         >
@@ -197,7 +212,7 @@ export const LoginForm = () => {
                             </svg>
                             GitHub
                         </Button>
-                    </div> */}
+                    </div>
                 </motion.div>
             </motion.div>
         </div>

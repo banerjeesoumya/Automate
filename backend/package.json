@@ -9,6 +9,7 @@
     "ngrok:dev": "ngrok http 8787"
   },
   "dependencies": {
+    "@repo/db": "workspace:*",
     "@ai-sdk/anthropic": "^2.0.56",
     "@ai-sdk/google": "^2.0.51",
     "@ai-sdk/openai": "^2.0.88",
