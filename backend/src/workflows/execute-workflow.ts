@@ -1,8 +1,8 @@
 import { WorkflowEntrypoint, WorkflowEvent, WorkflowStep } from "cloudflare:workers";
 import { Env } from "../types/env";
 import { NonRetryableError } from "cloudflare:workflows";
-import { getDB } from "../db/client";
-import { ExecutionStatus, NodeType } from "../generated/prisma";
+import { getDB } from "@repo/db/client";
+import { ExecutionStatus, NodeType } from "@repo/db/edge";
 import { topologicalSort } from "../utils/topoSort";
 import { getExecutor } from "./lib/executor-registry";
 

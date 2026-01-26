@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import type { Env } from "../types/env";
-import { getDB } from "../db/client";
+import { getDB } from "@repo/db/client";
 
 export function createAuth(env: Env) {
   const db = getDB(env);

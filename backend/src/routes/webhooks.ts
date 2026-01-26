@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { Env } from "../types/env";
 import z from "zod";
-import { PrismaClient } from "../generated/prisma/edge";
+import { PrismaClient } from "@repo/db/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 export const webhookRouter = new Hono<{

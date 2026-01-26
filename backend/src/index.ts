@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { Env } from "./types/env";
 import { createAuth } from "./utils/auth";
 import { workflowRouter } from "./routes/workflows/workflow";
-import { getDB } from "./db/client";
+import { getDB } from "@repo/db/client";
 import { cors } from "hono/cors";
 import { credsRouter } from "./routes/auth/credsAuth";
 import { authMiddleware } from "./utils/authMiddleware";

@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Env } from "../../types/env";
 import { authMiddleware } from "../../utils/authMiddleware";
-import { PrismaClient } from "../../generated/prisma/edge";
+import { PrismaClient } from "@repo/db/edge";
 import { getAllExecutionsSchema } from "./types";
 
 

@@ -1,5 +1,5 @@
 import z from "zod";
-import { CredentialType } from "../../generated/prisma/edge";
+import { CredentialType } from "@repo/db/edge";
 import { PAGINATION } from "../../utils/constants";
 
 export const createCredentialSchema = z.object({
