@@ -1,4 +1,4 @@
-import { NodeType } from "../../generated/prisma";
+import { NodeType } from "@repo/db/edge";
 import { anthropicExecutor } from "../executors/anthropic";
 import { discordExecutor } from "../executors/discord";
 import { geminiExecutor } from "../executors/gemini";
