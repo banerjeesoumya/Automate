@@ -3,6 +3,7 @@ import { Credential, CredentialType, Execution } from "./utils";
 
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+// Defining interfaces for API responses
 export interface NodeData {
   id: string;
   type: string;
