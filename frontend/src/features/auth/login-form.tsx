@@ -32,16 +32,18 @@ export const LoginForm = () => {
         },
     })
     const onSubmit = async (values: LoginFormValues) => {
-        try {
-            await credsApi.signInWithEmail(values.email, values.password);
-            const session = await authClient.getSession();
-            console.log("Logged in user session:", session);
-            router.push("/workflows");
-        } catch (error) {
-            // @ts-ignore
-            toast.error(error.response?.data?.message || "Login failed");
-            return;
-        }
+        await authClient.signIn.email({
+            email: values.email,
+            password: values.password,
+        }, {
+            onSuccess: () => {
+                // toast.success("Login successful");
+                window.location.href = "/workflows";
+            },
+            onError: (error) => {
+                toast.error(error.error.message || "Login failed");
+            }
+        })
     }
     const githubSignIn = async () => {
         await authClient.signIn.social({

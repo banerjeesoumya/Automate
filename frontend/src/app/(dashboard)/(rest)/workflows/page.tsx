@@ -6,7 +6,16 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect"
 import { Suspense } from "react"
 
 const Page = () => {
-    useAuthRedirect({ requireAuth: true })
+    const { isPending, user } = useAuthRedirect({ requireAuth: true })
+
+    if (isPending) {
+        return <WorkflowsLoading />;
+    }
+
+    if (!user) {
+        return null;
+    }
+
     return (
         <div className="min-h-screen bg-background overflow-hidden relative">
 

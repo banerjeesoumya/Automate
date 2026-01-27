@@ -6,7 +6,16 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect"
 import { Suspense } from "react"
 
 const Page = () => {
-    useAuthRedirect({ requireAuth: true })
+    const { isPending, user } = useAuthRedirect({ requireAuth: true })
+
+    if (isPending) {
+        return <ExecutionsLoading />;
+    }
+
+    if (!user) {
+        return null;
+    }
+
     return (
         <div className="min-h-screen bg-background overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-100 via-white to-zinc-100 dark:from-zinc-900 dark:via-black dark:to-zinc-900" />
