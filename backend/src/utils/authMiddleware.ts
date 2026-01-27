@@ -1,5 +1,5 @@
 import { Context, Next } from "hono";
-import { getAuth } from "./auth";
+import { getCookie } from "hono/cookie";
 import { getDB } from "@repo/db/client";
 
 export const authMiddleware = () => {
@@ -8,46 +8,55 @@ export const authMiddleware = () => {
 
     try {
       const db = getDB(c.env);
-      const cookie = c.req.header("Cookie") || "";
 
+      // Better Auth session token cookie names
       const token =
-        cookie.match(/better-auth\.session_token=([^;]+)/)?.[1] ??
-        cookie.match(/__Secure-better-auth\.session_token=([^;]+)/)?.[1];
+        getCookie(c, "better-auth.session_token") ||
+        getCookie(c, "__Secure-better-auth.session_token") ||
+        getCookie(c, "__Host-better-auth.session_token");
 
       if (!token) {
         return c.json({ message: "Unauthorized (no session token)" }, 401);
       }
 
-      const session = await db.session.findUnique({
-        where: { token },
-        include: { user: { include: { accounts: true } } },
+      const decodedToken = decodeURIComponent(token);
+
+      // Better Auth tokens often come in the format "sessionId.sessionToken"
+      // or "sessionId-sessionToken". We try to parse it.
+      const parts = decodedToken.split(/[.-]/);
+      const possibleIds = [decodedToken, ...parts];
+
+      // Verify session directly in database
+      let session = await db.session.findFirst({
+        where: {
+          OR: [
+            { id: { in: possibleIds } },
+            { token: { in: possibleIds } }
+          ]
+        },
+        include: { user: true },
       });
-      if (session && session.user) {
-        const account = session.user.accounts?.[0];
-        const provider = account?.providerId ?? "unknown";
 
-        if (provider === "credentials") {
-          if (new Date(session.expiresAt) < new Date()) {
-            await db.session.delete({ where: { id: session.id } });
-            return c.json({ message: "Session expired" }, 401);
-          }
-
-          c.set("userId", String(session.user.id));
-          c.set("provider", provider);
-          return next();
-        }
+      if (!session) {
+        return c.json({ message: "Unauthorized (invalid session)" }, 401);
       }
-      const auth = getAuth(c.env);
-      const betterSession = await auth.api.getSession(c.req.raw);
 
-      if (betterSession && betterSession.user) {
-        c.set("userId", String(betterSession.user.id));
-        c.set("provider", "oauth");
-        return next();
+      if (!session.user) {
+        return c.json({ message: "Unauthorized (invalid session)" }, 401);
       }
-      return c.json({ message: "Unauthorized (invalid session)" }, 401);
+
+      // Check if session has expired
+      if (new Date(session.expiresAt) < new Date()) {
+        await db.session.delete({ where: { id: session.id } }).catch(() => { });
+        return c.json({ message: "Session expired" }, 401);
+      }
+
+      // Set userId in context for downstream routes
+      c.set("userId", String(session.user.id));
+
+      return next();
     } catch (error) {
-      console.error("authHybridMiddleware error:", error);
+      console.error("authMiddleware error:", error);
       return c.json({ message: "Unauthorized (internal error)" }, 500);
     }
   };

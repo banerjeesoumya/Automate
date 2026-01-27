@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { Env } from "./types/env";
-import { createAuth } from "./utils/auth";
 import { workflowRouter } from "./routes/workflows/workflow";
 import { getDB } from "@repo/db/client";
 import { cors } from "hono/cors";
@@ -36,23 +35,6 @@ app.use(
   })
 );
 
-let authInstance: ReturnType<typeof createAuth> | null = null;
-function getAuth(env: Env) {
-  if (!authInstance) {
-    authInstance = createAuth(env);
-  }
-  return authInstance;
-}
-
-app.on(["GET", "POST"], "/api/auth/*", async (c) => {
-  const startCpu = performance.now();
-  const auth = getAuth(c.env);
-  const result = await auth.handler(c.req.raw);
-  const endCpu = performance.now();
-  console.log(`(log) Auth handler took ${(endCpu - startCpu).toFixed(2)}ms CPU`);
-  return result;
-});
-
 app.get("/api/health", async (c) => {
   const db = getDB(c.env);
   const users = await db.user.findMany().catch(() => null);
@@ -63,7 +45,6 @@ app.get("/api/health", async (c) => {
 });
 
 app.get("/api/hello", authMiddleware(), async (c) => {
-  const auth = getAuth(c.env);
   const userId = c.get("userId");
 
   console.log("Datasource URL:", c.env.CONNECTION_POOL_URL);
