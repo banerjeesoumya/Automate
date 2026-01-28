@@ -7,6 +7,11 @@ export const authMiddleware = () => {
     if (c.req.method === "OPTIONS") return next();
 
     try {
+      if (!c.env.CONNECTION_POOL_URL) {
+        console.error("❌ [Auth] CONNECTION_POOL_URL is missing in environment");
+        return c.json({ message: "Unauthorized (internal error)", error: "Database configuration missing" }, 500);
+      }
+
       const db = getDB(c.env);
 
       // 1. Try to get token from Authorization header (Bearer <token>)
@@ -75,9 +80,13 @@ export const authMiddleware = () => {
       c.set("userId", String(session.user.id));
 
       return next();
-    } catch (error) {
+    } catch (error: any) {
       console.error("authMiddleware error:", error);
-      return c.json({ message: "Unauthorized (internal error)" }, 500);
+      return c.json({
+        message: "Unauthorized (internal error)",
+        error: error?.message || String(error),
+        stack: error?.stack
+      }, 500);
     }
   };
 };
