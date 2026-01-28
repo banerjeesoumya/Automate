@@ -70,19 +70,11 @@ export const api = axios.create({
 
 // Add a request interceptor to attach the session token to the Authorization header
 api.interceptors.request.use((config) => {
-  if (typeof document !== "undefined") {
-    const cookies = document.cookie.split("; ");
-    const sessionCookie = cookies.find((c) =>
-      c.startsWith("better-auth.session_token=") ||
-      c.startsWith("__Secure-better-auth.session_token=") ||
-      c.startsWith("__Host-better-auth.session_token=")
-    );
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("better-auth.session_token");
 
-    if (sessionCookie) {
-      const token = sessionCookie.split("=")[1];
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${decodeURIComponent(token)}`;
-      }
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
   return config;

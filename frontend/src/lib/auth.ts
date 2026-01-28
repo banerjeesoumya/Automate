@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { getDB } from "@repo/db/client";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { bearer } from "better-auth/plugins";
 
 const db = getDB({
     CONNECTION_POOL_URL: process.env.CONNECTION_POOL_URL as string
@@ -30,5 +31,9 @@ export const auth = betterAuth({
             sameSite: "none",
             secure: true,
         },
+        crossSubDomainCookies: {
+            enabled: true,
+        },
     },
+    plugins: [bearer()],
 })

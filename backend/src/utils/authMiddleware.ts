@@ -35,6 +35,8 @@ export const authMiddleware = () => {
       const parts = decodedToken.split(/[.-]/);
       const possibleIds = [decodedToken, ...parts];
 
+      console.log("🔍 [Auth] Verifying session. Token parts:", possibleIds);
+
       // Verify session directly in database
       let session = await db.session.findFirst({
         where: {
@@ -47,8 +49,11 @@ export const authMiddleware = () => {
       });
 
       if (!session) {
+        console.log("❌ [Auth] No session found in DB for possible IDs");
         return c.json({ message: "Unauthorized (invalid session)" }, 401);
       }
+
+      console.log("✅ [Auth] Session verified for user:", session.user?.email);
 
       if (!session.user) {
         return c.json({ message: "Unauthorized (invalid session)" }, 401);

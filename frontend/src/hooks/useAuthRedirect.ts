@@ -1,49 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { credsApi } from "@/lib/api";
 
 export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const { data: betterAuthSession, isPending } = authClient.useSession();
-  const [manualSession, setManualSession] = useState<any>(null);
-  const [loadingManual, setLoadingManual] = useState(true);
 
-  useEffect(() => {
-    console.log("🔍 Checking hybrid session...");
-
-    if (betterAuthSession?.user) {
-      console.log("✅ BetterAuth session found, skipping manual check");
-      setLoadingManual(false);
-      return;
-    }
-
-    credsApi
-      .getSession()
-      .then((res) => {
-        console.log("📦 Creds API /get-session response:", res);
-        // @ts-ignore
-        if (res?.user) {
-          console.log("✅ Manual credentials session found");
-          setManualSession(res);
-        } else {
-          console.log("❌ No manual session found");
-          setManualSession(null);
-        }
-      })
-      .catch((err) => {
-        console.error("⚠️ Manual session check failed:", err);
-        setManualSession(null);
-      })
-      .finally(() => setLoadingManual(false));
-  }, [betterAuthSession]);
-
-  const user = betterAuthSession?.user || manualSession?.user;
+  const user = betterAuthSession?.user;
   const isAuthenticated = Boolean(user);
-  const isLoading = isPending || loadingManual;
+  const isLoading = isPending;
 
   useEffect(() => {
     if (isLoading) return;
@@ -57,10 +25,10 @@ export function useAuthRedirect({ requireAuth = false, requireNoAuth = false } =
       router.replace("/signin");
       return;
     }
-  }, [requireAuth, requireNoAuth, isAuthenticated, isLoading, pathname]);
+  }, [requireAuth, requireNoAuth, isAuthenticated, isLoading, pathname, router]);
 
   return {
-    session: betterAuthSession || manualSession?.session,
+    session: betterAuthSession?.session,
     user,
     isPending: isLoading,
   };

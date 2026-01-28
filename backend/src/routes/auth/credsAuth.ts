@@ -65,8 +65,7 @@ credsRouter.post("/signup", async (c) => {
 
   c.header(
     "Set-Cookie",
-    `${cookieName}=${token}; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; ${isProduction ? "Partitioned; " : ""}Max-Age=${
-      7 * 24 * 60 * 60
+    `${cookieName}=${token}; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; ${isProduction ? "Partitioned; " : ""}Max-Age=${7 * 24 * 60 * 60
     }`
   );
 
@@ -129,8 +128,7 @@ credsRouter.post("/signin", async (c) => {
 
   c.header(
     "Set-Cookie",
-    `${cookieName}=${token}; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; ${isProduction ? "Partitioned; " : ""}Max-Age=${
-      7 * 24 * 60 * 60
+    `${cookieName}=${token}; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; ${isProduction ? "Partitioned; " : ""}Max-Age=${7 * 24 * 60 * 60
     }`
   );
 
@@ -156,62 +154,18 @@ credsRouter.post("/signout", async (c) => {
     : "better-auth.session_token";
 
   c.header(
-  "Set-Cookie",
-  `${cookieName}=; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; Max-Age=0`
-);
+    "Set-Cookie",
+    `${cookieName}=; Path=/; HttpOnly; ${isProduction ? "Secure; " : ""}SameSite=None; Max-Age=0`
+  );
 
 
   return c.json({ message: "Logged out successfully." });
 });
 
 credsRouter.get("/get-session", async (c) => {
-  const db = getDB(c.env);
-  const cookie = c.req.header("Cookie") || "";
-
-  const token =
-    cookie.match(/better-auth\.session_token=([^;]+)/)?.[1] ??
-    cookie.match(/__Secure-better-auth\.session_token=([^;]+)/)?.[1];
-
-  if (!token) {
-    return c.json({ session: null, user: null, message: "No session cookie" }, 401);
-  }
-
-  const session = await db.session.findUnique({
-    where: { token },
-    include: { user: { include: { accounts: true } } },
-  });
-
-  if (!session || !session.user) {
-    return c.json({ session: null, user: null, message: "Invalid or expired session" }, 401);
-  }
-
-  if (new Date(session.expiresAt) < new Date()) {
-    await db.session.delete({ where: { id: session.id } });
-    return c.json({ session: null, user: null, message: "Session expired" }, 401);
-  }
-
-  const provider = session.user.accounts?.[0]?.providerId ?? "credentials";
-
   return c.json({
-    session: {
-      id: session.id,
-      token: session.token,
-      userId: session.userId,
-      ipAddress: session.ipAddress ?? "",
-      userAgent: session.userAgent ?? "",
-      createdAt: session.createdAt,
-      updatedAt: session.updatedAt,
-      expiresAt: session.expiresAt,
-    },
-    user: {
-      id: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-      emailVerified: session.user.emailVerified,
-      image: session.user.image,
-      createdAt: session.user.createdAt,
-      updatedAt: session.user.updatedAt,
-      provider,
-    },
-  });
+    message: "This endpoint is deprecated. Authentication is handled by Better Auth on the frontend.",
+    session: null,
+    user: null
+  }, 410); // Gone
 });

@@ -31,6 +31,7 @@ app.use(
       "https://automate-git-featureauth-soumya-banerjees-projects.vercel.app",
     ],
     allowMethods: ["GET", "POST", "OPTIONS", "PUT", "DELETE", "PATCH"],
+    allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
