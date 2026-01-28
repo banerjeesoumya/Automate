@@ -82,7 +82,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
           });
 
           // sleep for visual feedback
-          await step.sleep(`delay-running-${node.id}`, 1000);
+          // await step.sleep(`delay-running-${node.id}`, 1000);
           const executor = getExecutor(node.type as NodeType)
 
           context = await executor({
@@ -104,7 +104,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
           });
 
           // sleep for visual feedback
-          await step.sleep(`delay-complete-${node.id}`, 1000);
+          // await step.sleep(`delay-complete-${node.id}`, 1000);
         } catch (error: any) {
           // 6.3 Update the execution state to errored
           await executionStateDO.fetch("https://do/update", {
