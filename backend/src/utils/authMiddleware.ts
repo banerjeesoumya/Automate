@@ -19,9 +19,15 @@ export const authMiddleware = () => {
       if (!token) {
         token =
           getCookie(c, "better-auth.session_token") ||
+          getCookie(c, "better_auth.session_token") ||
           getCookie(c, "__Secure-better-auth.session_token") ||
+          getCookie(c, "__Secure-better_auth.session_token") ||
           getCookie(c, "__Host-better-auth.session_token") ||
+          getCookie(c, "__Host-better_auth.session_token") ||
           null;
+        if (token) console.log("🔍 [Auth] Token found in Cookies");
+      } else {
+        console.log("🔍 [Auth] Token found in Authorization Header");
       }
 
       if (!token) {
@@ -31,8 +37,8 @@ export const authMiddleware = () => {
       const decodedToken = decodeURIComponent(token);
 
       // Better Auth tokens often come in the format "sessionId.sessionToken"
-      // or "sessionId-sessionToken". We try to parse it.
-      const parts = decodedToken.split(/[.-]/);
+      // or "sessionId-sessionToken" or "sessionId_sessionToken".
+      const parts = decodedToken.split(/[._-]/);
       const possibleIds = [decodedToken, ...parts];
 
       console.log("🔍 [Auth] Verifying session. Token parts:", possibleIds);

@@ -71,7 +71,27 @@ export const api = axios.create({
 // Add a request interceptor to attach the session token to the Authorization header
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("better-auth.session_token");
+    // 1. Try localStorage (Legacy or manual)
+    let token = localStorage.getItem("better-auth.session_token");
+
+    // 2. Fallback to Cookies (Default for Better Auth)
+    if (!token) {
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(";").shift();
+      };
+
+      // Support variants like better-auth, better_auth, __Secure-, __Host-
+      token =
+        getCookie("better-auth.session_token") ||
+        getCookie("better_auth.session_token") ||
+        getCookie("__Secure-better-auth.session_token") ||
+        getCookie("__Secure-better_auth.session_token") ||
+        getCookie("__Host-better-auth.session_token") ||
+        getCookie("__Host-better_auth.session_token") ||
+        null;
+    }
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
