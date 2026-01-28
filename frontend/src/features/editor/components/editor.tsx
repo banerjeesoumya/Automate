@@ -1,7 +1,7 @@
 "use client";
 
 import { LoadingView } from "@/components/entity-components";
-import { useSuspenseWorkflow } from "@/hooks/workflows/use-workflows";
+import { useExecutionRealtime, useSuspenseWorkflow } from "@/hooks/workflows/use-workflows";
 import {
   ReactFlow,
   applyNodeChanges,
@@ -33,12 +33,47 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   const setEditor = useSetAtom(editorAtom);
   const setIsDirty = useSetAtom(isDirtyAtom);
 
-  const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
+  const [nodes, setNodes] = useState<Node[]>(() =>
+    workflow.nodes.map((node: any) => {
+      const { executionStatus, error, ...restData } = node.data;
+      return {
+        ...node,
+        data: restData,
+      };
+    })
+  );
   const [edges, setEdges] = useState<Edge[]>(workflow.edges);
+  const [executionId, setExecutionId] = useState<string | undefined>(undefined);
+  const realtime = useExecutionRealtime(executionId);
+
+  useEffect(() => {
+    setNodes(workflow.nodes.map((node: any) => {
+      const { executionStatus, error, ...restData } = node.data;
+      return {
+        ...node,
+        data: restData,
+      };
+    }));
+    setEdges(workflow.edges);
+  }, [workflow, setNodes, setEdges]);
 
   useEffect(() => {
     setIsDirty(false);
   }, [workflowId, setIsDirty]);
+
+  useEffect(() => {
+    if (executionId) {
+      setNodes((prev) =>
+        prev.map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            executionStatus: undefined,
+          },
+        }))
+      );
+    }
+  }, [executionId, setNodes]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -83,6 +118,30 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     return nodes.some((node) => node.type === NodeType.Manual_Trigger)
   }, [nodes]);
 
+  useEffect(() => {
+    if (!realtime) return;
+
+    setNodes((prev) => {
+      let hasChanged = false;
+      const nextNodes = prev.map((node) => {
+        const newStatus = realtime.nodes[node.id]?.status;
+        if (node.data.executionStatus !== newStatus) {
+          hasChanged = true;
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              executionStatus: newStatus
+            }
+          };
+        }
+        return node;
+      });
+
+      return hasChanged ? nextNodes : prev;
+    });
+  }, [realtime, setNodes]);
+
   return (
     <div className="w-full h-screen">
       <ReactFlow
@@ -108,7 +167,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         </Panel>
         {hasManualTrigger && (
           <Panel position="top-left">
-            <ExecuteWorkflowButton workflowId={workflowId} />
+            <ExecuteWorkflowButton workflowId={workflowId} onExecutionStart={setExecutionId} />
           </Panel>
         )}
       </ReactFlow>

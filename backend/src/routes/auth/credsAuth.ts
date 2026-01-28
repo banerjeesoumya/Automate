@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import bcrypt from "bcryptjs";
 import { Env } from "../../types/env";
-import { getDB } from "../../db/client";
+// import { getDB } from "../../db/client";
+import { getDB } from "@repo/db/client"
 
 export const credsRouter = new Hono<{
   Bindings: Env;

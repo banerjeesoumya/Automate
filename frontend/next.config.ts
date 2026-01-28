@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
         permanent: false,
       }
     ]
+   },
+   experimental: {
+    externalDir: true,
    }
 };
 

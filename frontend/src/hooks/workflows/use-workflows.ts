@@ -3,6 +3,8 @@ import { workflowApi } from "@/lib/api"
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useWorkflowsParams } from "./use-workflows-params";
+import { useEffect, useRef, useState } from "react";
+import { ExecutionStatus } from "@/lib/utils";
 
 export const useCreateWorkflow = () => {
   const router = useRouter();
@@ -26,12 +28,11 @@ export const useCreateWorkflow = () => {
 };
 
 export const useExecuteWorkflow = () => {
-  const queryClient = useQueryClient();
-
+  
   return useMutation({
     mutationKey: ["executeWorkflow"],
     mutationFn: async ({ workflowId }: { workflowId: string }) => {
-      workflowApi.executeWorkflow({ workflowId });
+      return workflowApi.executeWorkflow({ workflowId });
     },
     onSuccess: () => {
       toast.success("Workflow execution started successfully");
@@ -185,3 +186,46 @@ export const useUpdateWorkflowNodesAndEdges = () => {
     },
   });
 };
+
+export interface RealtimeExecutionStatus {
+  executionId: string;
+  nodes: Record<
+    string,
+    {
+      status: ExecutionStatus;
+      startedAt?: number;
+      completedAt?: number;
+      error?: string;
+    }
+  >;
+}
+
+export function useExecutionRealtime(executionId?: string) {
+  const [state, setState] = useState<RealtimeExecutionStatus | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    if (!executionId) return;
+
+    const ws = new WebSocket(
+      `${process.env.NEXT_PUBLIC_BACKEND_WS_URL}/executions/stream/${executionId}`
+    );
+
+    wsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      setState(JSON.parse(event.data));
+    };
+
+    ws.onerror = (err) => {
+      console.error("WS error", err);
+    };
+
+    return () => {
+      ws.close();
+      wsRef.current = null;
+    };
+  }, [executionId]);
+
+  return state;
+}

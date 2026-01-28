@@ -5,11 +5,15 @@ import { memo, useState } from "react";
 
 import { BaseExecutionNode } from "../../nodes/base-execution-node";
 import { AnthropicFormValues, AnthropicTriggerDialog } from "./dialog";
+import { ExecutionStatus } from "@/lib/utils";
 
 type AnthropicNodeData = {
     variableName?: string;
     systemPrompt?: string;
     userPrompt?: string;
+
+    executionStatus?: ExecutionStatus;
+    error?: string;
 }
 
 type AnthropicNodeType = Node<AnthropicNodeData>;
@@ -23,7 +27,7 @@ export const AnthropicNode = memo((props: NodeProps<AnthropicNodeType>) => {
         ? `claude-sonnet-4-5 ${nodeData.userPrompt.slice(0, 30)}...`
         : "Not Configured";
 
-    const nodeStatus = "initial";
+    const nodeStatus = nodeData.executionStatus;
 
     const handleSettings = () => setDialogOpen(true);
 

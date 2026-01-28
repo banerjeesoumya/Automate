@@ -2,7 +2,7 @@ import { NonRetryableError } from "cloudflare:workflows";
 import { NodeExecutor, WorkflowContext } from "../lib/types";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
-import { PrismaClient } from "../../generated/prisma/edge";
+import { PrismaClient } from "@repo/db/edge";
 
 function getByPath(
   obj: Record<string, unknown>,

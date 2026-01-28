@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Env } from "../../types/env";
 import { authMiddleware } from "../../utils/authMiddleware";
-import { CredentialType, PrismaClient } from "../../generated/prisma/edge";
+import { CredentialType, PrismaClient } from "@repo/db/edge";
 import { createCredentialSchema, getAllCredentialsSchema, updateCredentialSchema } from "./types";
 
 export const credentialRouter = new Hono<{

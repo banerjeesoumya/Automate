@@ -1,12 +1,20 @@
-import { NodeProps } from "@xyflow/react";
+import { Node, NodeProps } from "@xyflow/react";
 import { memo, useState } from "react";
 import { BaseTriggerNode } from "../base-trigger-node";
 import { GoogleFormTriggerDialog } from "./dialog";
+import { ExecutionStatus } from "@/lib/utils";
 
-export const GoogleFormTriggerNode = memo((props: NodeProps) => {
+type GeminiTriggerNodeData = {
+    executionStatus?: ExecutionStatus;
+    error?: string;
+}
+
+type GoogleFormTriggerNodeType = Node<GeminiTriggerNodeData>;
+
+export const GoogleFormTriggerNode = memo((props: NodeProps<GoogleFormTriggerNodeType>) => {
     const [dialogOpen , setDialogOpen] = useState(false);
 
-    const nodeStatus = "initial"; 
+    const nodeStatus = props.data.executionStatus; 
 
     const handleSettings = () => setDialogOpen(true);
 

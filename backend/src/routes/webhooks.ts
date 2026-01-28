@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { Env } from "../types/env";
 import z from "zod";
-import { PrismaClient } from "../generated/prisma/edge";
+import { PrismaClient } from "@repo/db/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 export const webhookRouter = new Hono<{
@@ -12,7 +12,7 @@ export const webhookRouter = new Hono<{
     }
 }>();
 
-const  googleFormWebhookSchema = z.object({
+const googleFormWebhookSchema = z.object({
     workflowId: z.string()
 })
 
@@ -71,10 +71,16 @@ webhookRouter.post("/google-form", async (c) => {
             }
         })
         console.log("Initial data sent to workflow:", formData)
+        const execID = await prisma.execution.create({
+            data: {
+                workflowId: workflowId,
+                cloudflareWorkflowId: execution.id,
+            }
+        })
         return c.json({
             ok: true,
             message: "Google Form webhook received and workflow execution started",
-            execution            
+            executionId: execID.id            
         })
     } catch (error) {
         console.error("Error processing Google Form webhook:", error);

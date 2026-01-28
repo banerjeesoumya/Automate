@@ -7,8 +7,10 @@ import { toast } from "sonner";
 
 export const ExecuteWorkflowButton = ({
     workflowId,
+    onExecutionStart,   
 }: {
     workflowId: string;
+    onExecutionStart: (executionId: string) => void;
 }) => {
 
     const executeWorkflow = useExecuteWorkflow();
@@ -22,7 +24,11 @@ export const ExecuteWorkflowButton = ({
             });
             return;
         }
-        executeWorkflow.mutate({ workflowId: workflowId });
+        executeWorkflow.mutate({ workflowId: workflowId }, {
+            onSuccess: (data) => {
+                onExecutionStart(data.executionId)
+            }
+         });
     }
 
     return (

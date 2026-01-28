@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema"
 import z from "zod"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 import { useAuthRedirect } from "@/hooks/useAuthRedirect"
 import { credsApi } from "@/lib/api"
+import { authClient } from "@/lib/auth-client"
 
 const registerSchema = z.object({
     email: z.email("Please enter a valid email address"),
@@ -28,7 +29,7 @@ export const RegisterForm = () => {
     useAuthRedirect({ requireNoAuth: true });
     const router = useRouter()
     const form = useForm<RegisterFormValues>({
-        resolver: zodResolver(registerSchema),
+        resolver: standardSchemaResolver(registerSchema),
         defaultValues: {
             email: "",
             password: "",
@@ -36,14 +37,27 @@ export const RegisterForm = () => {
         },
     })
     const onSubmit = async (values: RegisterFormValues) => {
-        try {
-            const response = await credsApi.signUpWithEmail(values.email, values.password, values.email);
-            router.push("/workflows");
-        } catch (error) {
-            // @ts-ignore
-            toast.error(error.response?.data?.message || "Signup failed");
-            return
-        }
+        // try {
+        //     const response = await credsApi.signUpWithEmail(values.email, values.password, values.email);
+        //     router.push("/workflows");
+        // } catch (error) {
+        //     // @ts-ignore
+        //     toast.error(error.response?.data?.message || "Signup failed");
+        //     return
+        // }
+        await authClient.signUp.email({
+            name: values.email,
+            email: values.email,
+            password: values.password,
+        }, {
+            onSuccess: () => {
+                toast.success("Signup successful");
+                window.location.href = "/workflows";
+            },
+            onError: (error) => {
+                toast.error(error.error.message);
+            }
+        })
     }
     const isPending = form.formState.isSubmitting
     return (

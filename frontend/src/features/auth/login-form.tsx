@@ -7,7 +7,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema"
 import z from "zod"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
@@ -25,23 +25,39 @@ export const LoginForm = () => {
     useAuthRedirect({ requireNoAuth: true });
     const router = useRouter()
     const form = useForm<LoginFormValues>({
-        resolver: zodResolver(loginSchema),
+        resolver: standardSchemaResolver(loginSchema),
         defaultValues: {
             email: "",
             password: "",
         },
     })
     const onSubmit = async (values: LoginFormValues) => {
-        try {
-            await credsApi.signInWithEmail(values.email, values.password);
-            const session = await authClient.getSession();
-            console.log("Logged in user session:", session);
-            router.push("/workflows");
-        } catch (error) {
-            // @ts-ignore
-            toast.error(error.response?.data?.message || "Login failed");
-            return;
-        }
+        await authClient.signIn.email({
+            email: values.email,
+            password: values.password,
+        }, {
+            onSuccess: () => {
+                // toast.success("Login successful");
+                window.location.href = "/workflows";
+            },
+            onError: (error) => {
+                toast.error(error.error.message || "Login failed");
+            }
+        })
+    }
+    const githubSignIn = async () => {
+        await authClient.signIn.social({
+            provider: "github",
+            callbackURL: `${process.env.NEXT_PUBLIC_APP_URL}/workflows`,
+        }, {
+            onSuccess: () => {
+                // toast.success("Login successful");
+                router.push("/workflows");
+            },
+            onError: (error) => {
+                toast.error(error.error.message || "Login failed");
+            }
+        })
     }
     const isPending = form.formState.isSubmitting
     return (
@@ -147,7 +163,7 @@ export const LoginForm = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className="mt-6"
                 >
-                    {/* <div className="relative">
+                    <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-zinc-800" />
                         </div>
@@ -185,6 +201,7 @@ export const LoginForm = () => {
                             Google
                         </Button>
                         <Button
+                            onClick={githubSignIn}
                             variant="outline"
                             className="bg-background border-border text-foreground hover:bg-zinc-100 transition-all duration-200 group dark:bg-zinc-900/50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-white dark:hover:text-black"
                         >
@@ -197,7 +214,7 @@ export const LoginForm = () => {
                             </svg>
                             GitHub
                         </Button>
-                    </div> */}
+                    </div>
                 </motion.div>
             </motion.div>
         </div>

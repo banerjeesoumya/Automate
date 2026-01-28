@@ -3,7 +3,7 @@ import { LoaderCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-export type NodeStatus = "loading" | "success" | "error" | "initial";
+export type NodeStatus = "RUNNING" | "COMPLETE" | "ERRORED" | "initial" | "QUEUED";
 
 export type NodeStatusVariant = "overlay" | "border";
 
@@ -99,7 +99,7 @@ export const NodeStatusIndicator = ({
   className,
 }: NodeStatusIndicatorProps) => {
   switch (status) {
-    case "loading":
+    case "RUNNING":
       switch (variant) {
         case "overlay":
           return <SpinnerLoadingIndicator>{children}</SpinnerLoadingIndicator>;
@@ -108,13 +108,13 @@ export const NodeStatusIndicator = ({
         default:
           return <>{children}</>;
       }
-    case "success":
+    case "COMPLETE":
       return (
         <StatusBorder className={cn(
           "border-green-700/90", className
         )}>{children}</StatusBorder>
       );
-    case "error":
+    case "ERRORED":
       return <StatusBorder className={cn(
         "border-red-700/50", className
       )}>{children}</StatusBorder>;

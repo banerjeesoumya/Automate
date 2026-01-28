@@ -5,11 +5,15 @@ import { memo, useState } from "react";
 
 import { BaseExecutionNode } from "../../nodes/base-execution-node";
 import { DiscordFormValues, DiscordTriggerDialog } from "./dialog";
+import { ExecutionStatus } from "@/lib/utils";
 
 type DiscordNodeData = {
     webhookUrl?: string;
     content?: string;
     username?: string;
+
+    executionStatus?: ExecutionStatus;
+    error?: string;
 }
 
 type DiscordNodeType = Node<DiscordNodeData>;
@@ -23,7 +27,7 @@ export const DiscordNode = memo((props: NodeProps<DiscordNodeType>) => {
         ? `Send ${nodeData.content.slice(0, 30)}...`
         : "Not Configured";
 
-    const nodeStatus = "initial";
+    const nodeStatus = nodeData.executionStatus
 
     const handleSettings = () => setDialogOpen(true);
 

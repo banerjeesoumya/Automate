@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { forwardRef, type HTMLAttributes } from "react";
 import { NodeStatus } from "./node-status-indicator";
-import { CheckCircle2Icon, Loader2Icon, LoaderCircle, XCircleIcon } from "lucide-react";
+import { CheckCircle2Icon, ClockIcon, Loader2Icon, LoaderCircle, XCircleIcon } from "lucide-react";
 
 interface BaseNodeProps extends HTMLAttributes<HTMLDivElement> {
   status?: NodeStatus
@@ -28,14 +28,17 @@ export const BaseNode = forwardRef<
     {...props}
   >
     {props.children}
-    {status === "error" && (
+    {status === "ERRORED" && (
       <XCircleIcon className="absolute right-0.5 bottom-0.5 size-2 text-red-700 stroke-3" />
     )}
-    {status === "success" && (
+    {status === "COMPLETE" && (
       <CheckCircle2Icon className="absolute right-0.5 bottom-0.5 size-2 text-green-700 stroke-3" />
     )}
-    {status === "loading" && (
+    {status === "RUNNING" && (
       <Loader2Icon className="absolute -right-0.5 -bottom-0.5 size-2 text-blue-700 stroke-3 animate-spin" />
+    )}
+    {status === "QUEUED" && (
+      <ClockIcon className="absolute right-0.5 bottom-0.5 size-2 text-muted-foreground stroke-3" />
     )}
   </div>
 ));

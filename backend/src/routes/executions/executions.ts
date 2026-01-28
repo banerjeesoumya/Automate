@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Env } from "../../types/env";
 import { authMiddleware } from "../../utils/authMiddleware";
-import { PrismaClient } from "../../generated/prisma/edge";
+import { PrismaClient } from "@repo/db/edge";
 import { getAllExecutionsSchema } from "./types";
 
 
@@ -64,6 +64,15 @@ executionRouter.get("/get/:id", authMiddleware(), async(c) => {
     }
 })
 
+executionRouter.get("/stream/:id", async(c) => {
+    const executionId = c.req.param("id");
+    if (!executionId) {
+        return c.json({ error: "Execution ID is required" }, 400);
+    }
+    const DOId = c.env.EXECUTION_STATE.idFromName(executionId);
+    const executionStateDO = c.env.EXECUTION_STATE.get(DOId);
+    return executionStateDO.fetch("https://do/connect", c.req.raw);
+})
 
 executionRouter.get("/all", authMiddleware(), async(c) => {
     const prisma = new PrismaClient({
