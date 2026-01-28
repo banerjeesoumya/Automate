@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema"
 import z from "zod"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -29,7 +29,7 @@ export const RegisterForm = () => {
     useAuthRedirect({ requireNoAuth: true });
     const router = useRouter()
     const form = useForm<RegisterFormValues>({
-        resolver: zodResolver(registerSchema),
+        resolver: standardSchemaResolver(registerSchema),
         defaultValues: {
             email: "",
             password: "",

@@ -62,11 +62,30 @@ export interface WorkflowExecutionResponse {
   message: string;
   executionId: string;
 }
-// === Axios instance ===
 export const api = axios.create({
   baseURL: BACKEND_URL,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
+});
+
+// Add a request interceptor to attach the session token to the Authorization header
+api.interceptors.request.use((config) => {
+  if (typeof document !== "undefined") {
+    const cookies = document.cookie.split("; ");
+    const sessionCookie = cookies.find((c) =>
+      c.startsWith("better-auth.session_token=") ||
+      c.startsWith("__Secure-better-auth.session_token=") ||
+      c.startsWith("__Host-better-auth.session_token=")
+    );
+
+    if (sessionCookie) {
+      const token = sessionCookie.split("=")[1];
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${decodeURIComponent(token)}`;
+      }
+    }
+  }
+  return config;
 });
 
 // === API functions ===
@@ -167,7 +186,7 @@ export interface GetOneCredentialResponse {
   ok: boolean;
   credential: Credential;
   message: string;
-} 
+}
 
 export interface PaginatedCredentialResponse {
   ok: boolean;
@@ -214,11 +233,11 @@ export const credentialApi = {
     const response = await api.put<UpdateCredentialResponse>(`/credentials/${params.id}`, { name, type, value });
     return response.data;
   },
-  getOneCredential: async (params: {id: string}) => {
-  const response = await api.get<GetOneCredentialResponse>(`/credentials/${params.id}`);
+  getOneCredential: async (params: { id: string }) => {
+    const response = await api.get<GetOneCredentialResponse>(`/credentials/${params.id}`);
 
-  return response.data;
-},
+    return response.data;
+  },
 
   getManyCredentials: async (params: { page: number; pageSize: number; search?: string }) => {
     const response = await api.get<PaginatedCredentialResponse>("/credentials/all", { params });
@@ -236,7 +255,7 @@ export interface GetOneExecutionResponse {
   ok: boolean;
   execution: Execution;
   message: string;
-} 
+}
 
 export interface PaginatedExecutionResponse {
   ok: boolean;
@@ -251,7 +270,7 @@ export interface PaginatedExecutionResponse {
 }
 
 export const executionApi = {
-  getOneExecution: async (params: {id: string}) => {
+  getOneExecution: async (params: { id: string }) => {
     const response = await api.get<GetOneExecutionResponse>(`/executions/get/${params.id}`);
     return response.data;
   },

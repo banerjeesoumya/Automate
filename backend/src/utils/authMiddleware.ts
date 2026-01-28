@@ -9,11 +9,20 @@ export const authMiddleware = () => {
     try {
       const db = getDB(c.env);
 
-      // Better Auth session token cookie names
-      const token =
-        getCookie(c, "better-auth.session_token") ||
-        getCookie(c, "__Secure-better-auth.session_token") ||
-        getCookie(c, "__Host-better-auth.session_token");
+      // 1. Try to get token from Authorization header (Bearer <token>)
+      const authHeader = c.req.header("Authorization");
+      let token = authHeader?.startsWith("Bearer ")
+        ? authHeader.substring(7)
+        : null;
+
+      // 2. Fall back to Better Auth session token cookies
+      if (!token) {
+        token =
+          getCookie(c, "better-auth.session_token") ||
+          getCookie(c, "__Secure-better-auth.session_token") ||
+          getCookie(c, "__Host-better-auth.session_token") ||
+          null;
+      }
 
       if (!token) {
         return c.json({ message: "Unauthorized (no session token)" }, 401);

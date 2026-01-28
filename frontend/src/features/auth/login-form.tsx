@@ -7,7 +7,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema"
 import z from "zod"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
@@ -25,7 +25,7 @@ export const LoginForm = () => {
     useAuthRedirect({ requireNoAuth: true });
     const router = useRouter()
     const form = useForm<LoginFormValues>({
-        resolver: zodResolver(loginSchema),
+        resolver: standardSchemaResolver(loginSchema),
         defaultValues: {
             email: "",
             password: "",
