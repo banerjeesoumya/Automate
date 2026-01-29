@@ -11,7 +11,6 @@ import z from "zod"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 import { useAuthRedirect } from "@/hooks/useAuthRedirect"
-import { credsApi } from "@/lib/api"
 import { authClient } from "@/lib/auth-client"
 
 const registerSchema = z.object({
@@ -37,14 +36,6 @@ export const RegisterForm = () => {
         },
     })
     const onSubmit = async (values: RegisterFormValues) => {
-        // try {
-        //     const response = await credsApi.signUpWithEmail(values.email, values.password, values.email);
-        //     router.push("/workflows");
-        // } catch (error) {
-        //     // @ts-ignore
-        //     toast.error(error.response?.data?.message || "Signup failed");
-        //     return
-        // }
         await authClient.signUp.email({
             name: values.email,
             email: values.email,
@@ -56,6 +47,32 @@ export const RegisterForm = () => {
             },
             onError: (error) => {
                 toast.error(error.error.message);
+            }
+        })
+    }
+    const githubSignIn = async () => {
+        await authClient.signIn.social({
+            provider: "github",
+            callbackURL: `${process.env.NEXT_PUBLIC_APP_URL}/workflows`,
+        }, {
+            onSuccess: () => {
+                router.push("/workflows");
+            },
+            onError: (error) => {
+                toast.error(error.error.message || "Login failed");
+            }
+        })
+    }
+    const googleSignIn = async () => {
+        await authClient.signIn.social({
+            provider: "google",
+            callbackURL: `${process.env.NEXT_PUBLIC_APP_URL}/workflows`,
+        }, {
+            onSuccess: () => {
+                router.push("/workflows");
+            },
+            onError: (error) => {
+                toast.error(error.error.message || "Login failed");
             }
         })
     }
@@ -177,7 +194,7 @@ export const RegisterForm = () => {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className="mt-6"
                 >
-                    {/* <div className="relative">
+                    <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-zinc-800" />
                         </div>
@@ -188,6 +205,7 @@ export const RegisterForm = () => {
 
                     <div className="mt-6 grid grid-cols-2 gap-3">
                         <Button
+                            onClick={googleSignIn}
                             variant="outline"
                             className="bg-background border-border text-foreground hover:bg-zinc-100 transition-all duration-200 group dark:bg-zinc-900/50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-white dark:hover:text-black"
                         >
@@ -216,6 +234,7 @@ export const RegisterForm = () => {
                         </Button>
                         <Button
                             variant="outline"
+                            onClick={githubSignIn}
                             className="bg-background border-border text-foreground hover:bg-zinc-100 transition-all duration-200 group dark:bg-zinc-900/50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-white dark:hover:text-black"
                         >
                             <svg
@@ -227,7 +246,7 @@ export const RegisterForm = () => {
                             </svg>
                             GitHub
                         </Button>
-                    </div> */}
+                    </div>
                 </motion.div>
             </motion.div>
         </div>

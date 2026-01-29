@@ -59,6 +59,19 @@ export const LoginForm = () => {
             }
         })
     }
+    const googleSignIn = async () => {
+        await authClient.signIn.social({
+            provider: "google",
+            callbackURL: `${process.env.NEXT_PUBLIC_APP_URL}/workflows`,
+        }, {
+            onSuccess: () => {
+                router.push("/workflows");
+            },
+            onError: (error) => {
+                toast.error(error.error.message || "Login failed");
+            }
+        })
+    }
     const isPending = form.formState.isSubmitting
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4 overflow-hidden relative">
@@ -174,6 +187,7 @@ export const LoginForm = () => {
 
                     <div className="mt-6 grid grid-cols-2 gap-3">
                         <Button
+                            onClick={googleSignIn}
                             variant="outline"
                             className="bg-background border-border text-foreground hover:bg-zinc-100 transition-all duration-200 group dark:bg-zinc-900/50 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-white dark:hover:text-black"
                         >
