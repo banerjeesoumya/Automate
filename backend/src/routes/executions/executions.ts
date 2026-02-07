@@ -89,7 +89,7 @@ executionRouter.get("/all", authMiddleware(), async(c) => {
 
     const parseResult = getAllExecutionsSchema.safeParse(queryParams);
     if (!parseResult.success) {
-        return c.json({ message: "Invalid request", errors: parseResult.error.errors }, 400);
+        return c.json({ message: "Invalid request", errors: parseResult.error.message }, 400);
     }
 
     const { page, pageSize, search } = parseResult.data;

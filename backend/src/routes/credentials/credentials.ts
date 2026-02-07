@@ -35,7 +35,7 @@ credentialRouter.post("/create", authMiddleware(), async(c) => {
     if (!parsed.success) {
         return c.json({
             message: "Invalid request",
-            errors: parsed.error.errors
+            errors: parsed.error.message
         }, 400)
     }
     try {
@@ -88,7 +88,7 @@ credentialRouter.put("/:id", authMiddleware(), async(c) => {
     if (!parsed.success) {
         return c.json({
             message: "Invalid request",
-            errors: parsed.error.errors
+            errors: parsed.error.message
         }, 400)
     }
 
@@ -136,7 +136,7 @@ credentialRouter.get("/all", authMiddleware(), async(c) => {
 
     const parseResult = getAllCredentialsSchema.safeParse(queryParams);
     if (!parseResult.success) {
-        return c.json({ message: "Invalid request", errors: parseResult.error.errors }, 400);
+        return c.json({ message: "Invalid request", errors: parseResult.error.message }, 400);
     }
 
     const { page, pageSize, search } = parseResult.data;

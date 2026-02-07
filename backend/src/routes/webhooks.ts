@@ -28,7 +28,7 @@ webhookRouter.post("/google-form", async (c) => {
     const parseResult = googleFormWebhookSchema.safeParse(queryParams);
 
     if (!parseResult.success) {
-        return c.json({ ok: false, message: "Invalid query parameters", errors: parseResult.error.errors }, 400);
+        return c.json({ ok: false, message: "Invalid query parameters", errors: parseResult.error.message }, 400);
     }
 
     const { workflowId } = parseResult.data;

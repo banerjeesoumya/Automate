@@ -18,7 +18,7 @@ type Params = {
 export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
   async run(event: WorkflowEvent<Params>, step: WorkflowStep) {
 
-    // ✅ Access workflow input using event.payload
+    // Access workflow input using event.payload
     const { workflowId, initialData } = event.payload;
 
     // 1. Checks for required workflowId
@@ -81,8 +81,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
             }),
           });
 
-          // sleep for visual feedback
-          // await step.sleep(`delay-running-${node.id}`, 1000);
+          await step.sleep(`delay-running-${node.id}`, 1000);
           const executor = getExecutor(node.type as NodeType)
 
           context = await executor({
@@ -103,8 +102,7 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
             }),
           });
 
-          // sleep for visual feedback
-          // await step.sleep(`delay-complete-${node.id}`, 1000);
+          await step.sleep(`delay-complete-${node.id}`, 1000);
         } catch (error: any) {
           // 6.3 Update the execution state to errored
           await executionStateDO.fetch("https://do/update", {

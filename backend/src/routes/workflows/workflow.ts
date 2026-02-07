@@ -127,7 +127,7 @@ workflowRouter.get("/all", authMiddleware(), async (c) => {
 
     const parseResult = getAllWorkflowsSchema.safeParse(queryParams);
     if (!parseResult.success) {
-        return c.json({ message: "Invalid request", errors: parseResult.error.errors }, 400);
+        return c.json({ message: "Invalid request", errors: parseResult.error.message }, 400);
     }
 
     const { page, pageSize, search } = parseResult.data;
@@ -185,7 +185,7 @@ workflowRouter.get('/get/:id', authMiddleware(), async (c) => {
         id: c.req.param('id')
     });
     if (!parseResult.success) {
-        return c.json({ message: 'Invalid request', errors: parseResult.error.errors }, 400);
+        return c.json({ message: 'Invalid request', errors: parseResult.error.message }, 400);
     }
     if (!userId) {
         return c.json({ message: 'User not logged in' }, 401);
@@ -283,7 +283,7 @@ workflowRouter.delete('/delete/:id', authMiddleware(), async (c) => {
         id: workflowId
     });
     if (!parseResult.success) {
-        return c.json({ message: 'Invalid request', errors: parseResult.error.errors }, 400);
+        return c.json({ message: 'Invalid request', errors: parseResult.error.message }, 400);
     }
     if (!workflowId) {
         return c.json({ error: 'Workflow ID is required' }, 400);
@@ -325,7 +325,7 @@ workflowRouter.put('/update/:id/nodes', authMiddleware(), async (c) => {
     const body = await c.req.json();
     const correctUpdateBody = updateWorkflowSchema.safeParse(body);
     if (!correctUpdateBody.success) {
-        return c.json({ error: 'Invalid request body', details: correctUpdateBody.error.errors }, 400);
+        return c.json({ error: 'Invalid request body', details: correctUpdateBody.error.message }, 400);
     }
 
     try {
