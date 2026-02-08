@@ -32,11 +32,11 @@ export function FAQSection() {
       answer:
         "Out of the box you can talk to HTTP APIs, Google Forms, Slack, Discord, and leading AI providers like OpenAI, Gemini, and Anthropic. Anything with a webhook or API can be wired in.",
     },
-    {
-      question: "How does pricing work?",
-      answer:
-        "You can start for free while you design workflows and run small workloads. As usage grows, you can move to a paid plan that scales with executions, team members, and advanced features.",
-    },
+    // {
+    //   question: "How does pricing work?",
+    //   answer:
+    //     "You can start for free while you design workflows and run small workloads. As usage grows, you can move to a paid plan that scales with executions, team members, and advanced features.",
+    // },
   ]
 
   return (
