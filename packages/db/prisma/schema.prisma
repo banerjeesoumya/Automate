@@ -73,11 +73,29 @@ model Workflow {
   name        String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now()) @updatedAt
-  userId      String
+  
+  userId      String?
+  isTemplate  Boolean      @default(false)
+  
   connections Connection[]
   executions  Execution[]
   nodes       Node[]
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  templateMeta TemplateMeta?
+
+  user        User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TemplateMeta {
+  id            String    @id @default(cuid())
+  workflowId    String    @unique
+  title         String
+  description   String?
+  category      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  workflow      Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }
 
 model Credential {
