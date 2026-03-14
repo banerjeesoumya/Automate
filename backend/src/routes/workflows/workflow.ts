@@ -82,7 +82,7 @@ workflowRouter.post('/execute-workflow', authMiddleware(), async (c) => {
         })
         const execution = await c.env.MY_WORKFLOW.create({
             params: {
-                email: workflow.user.email,
+                email: workflow.user?.email || "unknown",
                 id: "execute-workflow",
                 eventName: "workflows/execute.workflow",
                 workflowId: workflowId,

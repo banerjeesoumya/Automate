@@ -10,6 +10,7 @@ import { executionRouter } from "./routes/executions/executions";
 import { MyWorkflow } from "./workflows/execute-workflow";
 import { ExecutionState } from "./durable/execution-state";
 import { webhookRouter } from "./routes/webhooks";
+import { templateRouter } from "./routes/templates/template";
 
 export {
   MyWorkflow, ExecutionState
@@ -54,6 +55,7 @@ app.get("/api/hello", authMiddleware(), async (c) => {
 
 app.route("/api/creds", credsRouter);
 app.route("/api/workflows", workflowRouter);
+app.route("/api/templates", templateRouter);
 app.route("/api/credentials", credentialRouter)
 app.route("/api/executions", executionRouter);
 app.route("/api/webhooks", webhookRouter);
