@@ -253,7 +253,6 @@ templateRouter.post("/create", authMiddleware(), async (c) => {
             data: {
                 title,
                 description,
-                category,
                 workflowId
             }
         });
