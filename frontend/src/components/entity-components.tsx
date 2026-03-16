@@ -14,7 +14,7 @@ type EntityHeaderProps = {
     description?: string;
     newButtonLabel?: string;
     disabled?: boolean;
-    isCreating?: boolean;
+    isCreating?: boolean;   
 } & (
         | { onNew: () => void; newButtonHref?: never }
         | { newButtonHref: string; onNew?: never }
@@ -248,12 +248,13 @@ interface EntityItemsProps {
     subtitle?: React.ReactNode;
     image?: React.ReactNode;
     actions?: React.ReactNode;
+    dropdownItems?: React.ReactNode;
     onRemove?: () => void | Promise<void>;
     isRemoving?: boolean;
     className?: string;
 }
 
-export const EntityItem = ({ href, title, subtitle, image, actions, onRemove, isRemoving, className }: EntityItemsProps) => {
+export const EntityItem = ({ href, title, subtitle, image, actions, dropdownItems, onRemove, isRemoving, className }: EntityItemsProps) => {
 
     const handleRemove = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -291,10 +292,10 @@ export const EntityItem = ({ href, title, subtitle, image, actions, onRemove, is
                             )}
                         </div>
                     </div>
-                    {(actions || onRemove) && (
+                    {(actions || onRemove || dropdownItems) && (
                         <div className="flex gap-x-4 items-center">
                             {actions}
-                            {onRemove && (
+                            {(onRemove || dropdownItems) && (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button
@@ -309,10 +310,13 @@ export const EntityItem = ({ href, title, subtitle, image, actions, onRemove, is
                                         align="end"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <DropdownMenuItem onClick={handleRemove}>
-                                            <TrashIcon className="size-4" />
-                                            Delete
-                                        </DropdownMenuItem>
+                                        {dropdownItems}
+                                        {onRemove && (
+                                            <DropdownMenuItem onClick={handleRemove}>
+                                                <TrashIcon className="size-4" />
+                                                Delete
+                                            </DropdownMenuItem>
+                                        )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             )}

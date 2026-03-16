@@ -40,7 +40,12 @@ templateRouter.get("/all", authMiddleware(), async(c) => {
                 skip: (page - 1) * pageSize,
                 take: pageSize,
                 include: {
-                    workflow: true
+                    workflow: {
+                        include: {
+                            nodes: true,
+                            connections: true
+                        }
+                    }
                 },
                 orderBy: {
                     updatedAt: "desc"

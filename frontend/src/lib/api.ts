@@ -6,6 +6,7 @@ export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 // Defining interfaces for API responses
 export interface NodeData {
   id: string;
+  name: string;
   type: string;
   data: Record<string, any>;
   position: { x: number; y: number };
@@ -13,6 +14,7 @@ export interface NodeData {
 
 export interface EdgeData {
   id: string;
+  name: string;
   source: string;
   target: string;
   sourceHandle?: string;
@@ -296,11 +298,23 @@ export const executionApi = {
 
 export interface Template {
   id: string;
+  workflowId: string;
   title: string;
   description: string;
   category?: string;
+  createdAt: string;
+  updatedAt: string;
+  workflow: {
+    id: string,
+    name: string,
+    createdAt: string,
+    updatedAt: string,
+    userId: string,
+    isTemplate: boolean,
+    nodes: NodeData[],
+    connections: EdgeData[]
+  }
   icon?: string;
-  workflowId: string;
 }
 
 export interface PaginatedTemplateResponse {

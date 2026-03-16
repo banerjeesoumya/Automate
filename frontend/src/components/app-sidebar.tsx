@@ -1,6 +1,6 @@
 "use client"
 
-import { BookOpenIcon, FolderOpenIcon, HistoryIcon, KeyIcon, LogOutIcon } from "lucide-react"
+import { BookOpenIcon, FolderOpenIcon, HistoryIcon, KeyIcon, LayoutTemplate, LogOutIcon } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar"
 import Link from "next/link"
 import Image from "next/image"
@@ -28,6 +28,11 @@ const menuItems = [
                 title: "Executions",
                 icon: HistoryIcon,
                 url: "/executions"
+            },
+            {
+                title: "Templates",
+                icon: LayoutTemplate,
+                url: "/templates"
             },
             {
                 title: "Docs",
