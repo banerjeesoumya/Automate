@@ -62,12 +62,12 @@ export function StickyFooter() {
                 <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/docs"}>
                   Docs
                 </li>
-                {/* <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/changelog"}>
+                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/templates"}>
+                  Templates
+                </li>
+                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/changelog"}>
                   Changelog
                 </li>
-                <li className="hover:underline cursor-pointer transition-colors text-primary-foreground hover:text-primary-foreground/80" onClick={() => window.location.href = "/support"}>
-                  Support
-                </li> */}
               </ul>
             </motion.div>
             <motion.h2

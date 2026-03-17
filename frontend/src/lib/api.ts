@@ -6,6 +6,7 @@ export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 // Defining interfaces for API responses
 export interface NodeData {
   id: string;
+  name: string;
   type: string;
   data: Record<string, any>;
   position: { x: number; y: number };
@@ -13,6 +14,7 @@ export interface NodeData {
 
 export interface EdgeData {
   id: string;
+  name: string;
   source: string;
   target: string;
   sourceHandle?: string;
@@ -62,6 +64,7 @@ export interface WorkflowExecutionResponse {
   message: string;
   executionId: string;
 }
+
 export const api = axios.create({
   baseURL: BACKEND_URL,
   headers: { "Content-Type": "application/json" },
@@ -289,6 +292,88 @@ export const executionApi = {
 
   getManyExecutions: async (params: { page: number; pageSize: number; search?: string }) => {
     const response = await api.get<PaginatedExecutionResponse>("/executions/all", { params });
+    return response.data;
+  },
+}
+
+export interface Template {
+  id: string;
+  workflowId: string;
+  title: string;
+  description: string;
+  category?: string;
+  createdAt: string;
+  updatedAt: string;
+  workflow: {
+    id: string,
+    name: string,
+    createdAt: string,
+    updatedAt: string,
+    userId: string,
+    isTemplate: boolean,
+    nodes: NodeData[],
+    connections: EdgeData[]
+  }
+  icon?: string;
+}
+
+export interface PaginatedTemplateResponse {
+  ok: boolean;
+  items: Template[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  message: string;
+}
+
+export interface GetOneTemplateResponse {
+  ok: boolean;
+  id: string;
+  title: string;
+  description: string;
+  category?: string;
+  icon?: string;
+  workflowId: string;
+  nodes: NodeData[];
+  edges: EdgeData[];
+  message: string;
+}
+
+export interface UseTemplateResponse {
+  ok: boolean;
+  workflowId: string;
+  message: string;
+}
+
+export interface CreateTemplateResponse {
+  ok: boolean;
+  message: string;
+  template: {
+    id: string;
+    name: string;
+  }
+}
+
+export const templateApi = {
+  getManyTemplates: async (params: { page: number; pageSize: number; search?: string }) => {
+    const response = await api.get<PaginatedTemplateResponse>("/templates/all", { params });
+    return response.data;
+  },
+  getOneTemplate: async (id: string) => {
+    const response = await api.get<GetOneTemplateResponse>(`/templates/get/${id}`);
+    return response.data;
+  },
+  useTemplate: async (id: string) => {
+    const response = await api.post<UseTemplateResponse>(`/templates/use/${id}`);
+    return response.data;
+  },
+  createTemplate: async (data: {
+    title: string, description: string, workflowId: string
+  }) => {
+    const response = await api.post<CreateTemplateResponse>("/templates/create", data);
     return response.data;
   },
 }

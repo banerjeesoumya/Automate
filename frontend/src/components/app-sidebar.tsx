@@ -1,6 +1,6 @@
 "use client"
 
-import { BookOpenIcon, FolderOpenIcon, HistoryIcon, KeyIcon, LogOutIcon } from "lucide-react"
+import { BookOpenIcon, FolderOpenIcon, HistoryIcon, KeyIcon, LayoutTemplate, LogOutIcon } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar"
 import Link from "next/link"
 import Image from "next/image"
@@ -9,6 +9,8 @@ import { authClient } from "@/lib/auth-client"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { credsApi } from "@/lib/api"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { Button } from "./ui/button"
 
 const menuItems = [
     {
@@ -30,6 +32,11 @@ const menuItems = [
                 url: "/executions"
             },
             {
+                title: "Templates",
+                icon: LayoutTemplate,
+                url: "/templates"
+            },
+            {
                 title: "Docs",
                 icon: BookOpenIcon,
                 url: "/docs"
@@ -44,6 +51,8 @@ export const AppSidebar = () => {
     const queryClient = useQueryClient()
     const router = useRouter();
     const pathName = usePathname();
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
 
     const handleSignOut = async () => {
         try {
@@ -101,14 +110,35 @@ export const AppSidebar = () => {
             <SidebarFooter>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton
-                            tooltip = "Sign Out"
-                            className="gap-x-4 h-10 px-4"
-                            onClick={handleSignOut}
-                        >
-                            <LogOutIcon className="size-4" />
-                            <span>Sign Out</span>
-                        </SidebarMenuButton>
+                        <div className="flex items-center justify-between w-full overflow-hidden h-14 p-2">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                                <Avatar className="h-9 w-9 rounded-md border border-border shrink-0">
+                                    <AvatarImage src={user?.image || ""} alt={user?.name || ""} />
+                                    <AvatarFallback className="rounded-md bg-secondary text-secondary-foreground font-medium">
+                                        {user?.name?.charAt(0).toUpperCase() || "U"}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex flex-col flex-1 overflow-hidden" title={user?.email || "Account"}>
+                                    <span className="text-sm font-medium leading-none truncate text-foreground/90">{user?.name || "User"}</span>
+                                    <span className="text-xs text-muted-foreground leading-tight truncate mt-1">
+                                        {user?.email || "email@example.com"}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 ml-2 shrink-0 hover:bg-secondary border border-transparent hover:border-border transition-all" 
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleSignOut();
+                                }} 
+                                title="Sign Out"
+                            >
+                                <LogOutIcon className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                            </Button>
+                        </div>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>

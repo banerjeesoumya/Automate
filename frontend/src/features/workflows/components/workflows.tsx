@@ -3,10 +3,12 @@ import { useEntitySearch } from "@/hooks/use-entity-search";
 import { useCreateWorkflow, useDeleteWorkflow, useSuspenseWorkflows } from "@/hooks/workflows/use-workflows";
 import { useWorkflowsParams } from "@/hooks/workflows/use-workflows-params";
 import { formatDistanceToNow } from "date-fns";
-import { WorkflowIcon } from "lucide-react";
+import { WorkflowIcon, LayoutTemplateIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { CreateTemplateDialog } from "@/features/templates/components/create-template-modal";
+import { useState } from "react";
 
 export const WorkflowsSearch = () => {
     const [params, setParams] = useWorkflowsParams();
@@ -140,29 +142,49 @@ export interface Workflow {
 export const WorkflowItem = ({ workflow }: { workflow: Workflow }) => {
     
     const removeWorkflow = useDeleteWorkflow();
+    const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
     const handleRemove = () => {
         removeWorkflow.mutate({ id: workflow.id });
     }
 
+    const openTemplateModal = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsTemplateModalOpen(true);
+    }
+
     return (
-        <EntityItem
-           href={`/workflows/${workflow.id}`}
-           title={workflow.name}
-           subtitle={
-            <>
-                Updated {formatDistanceToNow(new Date(workflow.updatedAt ?? ""), { addSuffix: true })}{" "}
-                &bull; Created {" "} {formatDistanceToNow(new Date(workflow.createdAt ?? ""), { addSuffix: true })}
-            </>
-           }
-           image={
-            <div className="size-8 flex items-center justify-center">
-                <WorkflowIcon className="size-5 text-muted-foreground" />
-            </div>
-           }
-           onRemove={handleRemove}
-           isRemoving={removeWorkflow.isPending}
-       />
+        <>
+            <EntityItem
+               href={`/workflows/${workflow.id}`}
+               title={workflow.name}
+               subtitle={
+                <>
+                    Updated {formatDistanceToNow(new Date(workflow.updatedAt ?? ""), { addSuffix: true })}{" "}
+                    &bull; Created {" "} {formatDistanceToNow(new Date(workflow.createdAt ?? ""), { addSuffix: true })}
+                </>
+               }
+               image={
+                <div className="size-8 flex items-center justify-center">
+                    <WorkflowIcon className="size-5 text-muted-foreground" />
+                </div>
+               }
+               dropdownItems={
+                 <DropdownMenuItem onClick={openTemplateModal}>
+                    <LayoutTemplateIcon className="size-4 mr-2" />
+                    Post this as template
+                 </DropdownMenuItem>
+               }
+               onRemove={handleRemove}
+               isRemoving={removeWorkflow.isPending}
+           />
+           <CreateTemplateDialog 
+                workflowId={workflow.id} 
+                open={isTemplateModalOpen} 
+                onOpenChange={setIsTemplateModalOpen} 
+           />
+       </>
     )
 }
 
