@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 export const TemplatesSearch = () => {
     const [params, setParams] = useTemplatesParams();
@@ -176,9 +177,9 @@ export const TemplateItem = ({ template }: { template: Template }) => {
                     </div>
                 </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex gap-2">
                  <Button 
-                    className="w-full gap-x-2 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                    className="flex-1 gap-x-2 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
                     variant={useTemplate.isPending ? "secondary" : "default"}
                     onClick={(e) => {
                         e.preventDefault();
@@ -189,6 +190,9 @@ export const TemplateItem = ({ template }: { template: Template }) => {
                  >
                      {useTemplate.isPending ? "Adding..." : "Use Template"}
                  </Button>
+                 <Link href={`/templates/${template.id}/guide`} className="flex-1 w-full" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="outline" className="w-full h-full border-border">Guide</Button>
+                 </Link>
             </CardFooter>
         </Card>
     )

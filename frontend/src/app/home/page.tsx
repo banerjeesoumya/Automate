@@ -326,7 +326,7 @@ export default function Home() {
       </div>
 
       {/* Architecture Section */}
-      <div id="architecture">
+      <div id="architecture" className="hidden md:block">
         <InteractiveArchitecture />
       </div>
 
